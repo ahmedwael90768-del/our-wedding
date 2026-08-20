@@ -1,0 +1,1620 @@
+<!doctype html>
+<html lang="ar" dir="rtl" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Our Wedding — نظام تجهيزات الزواج</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --cream:#FBF5EE; --cream-deep:#F1E6D9; --surface:#FFFFFF;
+  --rose:#B8768A; --rose-deep:#8F4F63; --rose-soft:#F6E3E8;
+  --gold:#C39B4E; --gold-light:#EAD9AE; --gold-deep:#9C7A32;
+  --ink:#2C2521; --ink-soft:#7A6E66; --ink-faint:#B4A79C;
+  --success:#6C8F63; --success-bg:#E9F1E5;
+  --warn:#C98A3A; --warn-bg:#FBEEDC;
+  --danger:#BD5A4E; --danger-bg:#F8E6E3;
+  --line:#E9DED2;
+  --radius-s:10px; --radius-m:16px; --radius-l:24px;
+  --shadow-s:0 1px 3px rgba(44,37,33,.06), 0 1px 2px rgba(44,37,33,.04);
+  --shadow-m:0 8px 24px -8px rgba(44,37,33,.14);
+  --shadow-l:0 24px 48px -16px rgba(44,37,33,.22);
+  --font-disp:'Playfair Display', 'Cairo', serif;
+  --font-body:'Inter','Cairo',sans-serif;
+  --font-ar:'Cairo','Inter',sans-serif;
+  --sidebar-w:252px;
+  --topbar-h:72px;
+}
+html[data-theme="midnight"]{
+  --cream:#1B1714; --cream-deep:#241E19; --surface:#221C18;
+  --rose:#D392A4; --rose-deep:#C97D93; --rose-soft:#3A2530;
+  --gold:#D8B76B; --gold-light:#8A6E38; --gold-deep:#E9CE93;
+  --ink:#F2E9DE; --ink-soft:#B7A99C; --ink-faint:#7A6E64;
+  --success:#8FBF83; --success-bg:#26301F;
+  --warn:#E3AD5E; --warn-bg:#332615;
+  --danger:#E0897C; --danger-bg:#361F1B;
+  --line:#3A322B;
+  --shadow-s:0 1px 3px rgba(0,0,0,.3);
+  --shadow-m:0 8px 24px -8px rgba(0,0,0,.5);
+  --shadow-l:0 24px 48px -16px rgba(0,0,0,.6);
+}
+html[lang="ar"] body{ font-family: var(--font-ar); }
+html[lang="en"] body{ font-family: var(--font-body); }
+html[lang="en"] .disp{ font-family: var(--font-disp); }
+html[lang="ar"] .disp{ font-family: var(--font-ar); font-weight:800; }
+
+*{ box-sizing:border-box; }
+body{
+  margin:0; background:var(--cream); color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  transition:background .35s ease, color .35s ease;
+}
+::selection{ background:var(--gold-light); color:var(--ink); }
+::-webkit-scrollbar{ width:8px; height:8px; }
+::-webkit-scrollbar-thumb{ background:var(--ink-faint); border-radius:8px; }
+::-webkit-scrollbar-track{ background:transparent; }
+
+button{ font-family:inherit; cursor:pointer; }
+input,select,textarea{ font-family:inherit; }
+a{ color:inherit; }
+:focus-visible{ outline:2px solid var(--gold-deep); outline-offset:2px; border-radius:6px; }
+
+/* subtle geometric watermark (signature motif) */
+.geo-pattern{
+  position:absolute; inset:0; pointer-events:none; opacity:.08;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%23C39B4E' stroke-width='1'%3E%3Cpath d='M42 2 L82 42 L42 82 L2 42 Z'/%3E%3Cpath d='M42 22 L62 42 L42 62 L22 42 Z'/%3E%3Ccircle cx='42' cy='42' r='3'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:84px 84px;
+}
+
+/* ============ LAYOUT ============ */
+#app{ min-height:100vh; }
+.shell{ display:flex; min-height:100vh; }
+[dir="rtl"] .shell{ flex-direction:row; }
+
+.sidebar{
+  width:var(--sidebar-w); flex-shrink:0; background:var(--surface);
+  border-inline-end:1px solid var(--line);
+  display:flex; flex-direction:column; padding:22px 16px;
+  position:sticky; top:0; height:100vh; z-index:40;
+  transition:transform .3s ease;
+}
+.brand{ display:flex; align-items:center; gap:10px; padding:6px 8px 22px; }
+.brand-mark{
+  width:38px;height:38px;border-radius:12px;
+  background:linear-gradient(135deg,var(--gold-light),var(--gold));
+  display:flex;align-items:center;justify-content:center;color:var(--surface);
+  font-size:18px; box-shadow:var(--shadow-s); flex-shrink:0;
+}
+.brand-text{ line-height:1.15; }
+.brand-text b{ font-size:15px; display:block; font-family:var(--font-disp); font-weight:800;}
+.brand-text span{ font-size:11px; color:var(--ink-soft); letter-spacing:.04em; }
+
+.nav{ display:flex; flex-direction:column; gap:2px; flex:1; overflow-y:auto; }
+.nav-item{
+  display:flex; align-items:center; gap:12px; padding:11px 12px; border-radius:12px;
+  color:var(--ink-soft); text-decoration:none; font-size:14px; font-weight:600;
+  border:none; background:transparent; width:100%; text-align:start;
+  position:relative; transition:background .18s ease, color .18s ease;
+}
+.nav-item svg{ width:19px; height:19px; flex-shrink:0; }
+.nav-item:hover{ background:var(--cream-deep); color:var(--ink); }
+.nav-item.active{ background:var(--rose-soft); color:var(--rose-deep); }
+.nav-item.active::before{
+  content:''; position:absolute; inset-inline-start:-16px; top:8px; bottom:8px; width:3px;
+  background:var(--gold-deep); border-radius:4px;
+}
+.nav-sep{ height:1px; background:var(--line); margin:10px 4px; }
+
+.sidebar-foot{ padding-top:12px; border-top:1px solid var(--line); }
+.user-pill{ display:flex; align-items:center; gap:10px; padding:10px 10px; border-radius:12px; background:var(--cream-deep); }
+.user-pill .av{ width:30px;height:30px;border-radius:50%; background:linear-gradient(135deg,var(--rose),var(--rose-deep)); color:#fff; display:flex;align-items:center;justify-content:center; font-weight:700; font-size:13px; flex-shrink:0;}
+.user-pill select{ border:none; background:transparent; font-weight:700; font-size:13px; color:var(--ink); flex:1; }
+
+.main{ flex:1; min-width:0; display:flex; flex-direction:column; }
+.topbar{
+  height:var(--topbar-h); display:flex; align-items:center; justify-content:space-between;
+  padding:0 28px; position:sticky; top:0; z-index:30; background:color-mix(in srgb, var(--cream) 85%, transparent);
+  backdrop-filter:blur(10px); border-bottom:1px solid var(--line);
+}
+.topbar-title{ font-family:var(--font-disp); font-weight:800; font-size:20px; }
+.topbar-title small{ display:block; font-family:var(--font-body); font-weight:500; font-size:12px; color:var(--ink-soft); margin-top:2px; }
+.topbar-actions{ display:flex; align-items:center; gap:8px; }
+.icon-btn{
+  width:40px;height:40px; border-radius:12px; border:1px solid var(--line); background:var(--surface);
+  display:flex; align-items:center; justify-content:center; color:var(--ink-soft); position:relative;
+  transition:transform .15s ease, color .15s ease, border-color .15s ease;
+}
+.icon-btn:hover{ color:var(--rose-deep); border-color:var(--rose); transform:translateY(-1px); }
+.icon-btn:active{ transform:scale(.94); }
+.icon-btn svg{ width:18px;height:18px; }
+.badge-dot{ position:absolute; top:6px; inset-inline-end:6px; width:8px;height:8px;border-radius:50%; background:var(--danger); border:2px solid var(--surface); }
+
+.hamburger{ display:none; }
+.content{ padding:26px 28px 60px; max-width:1240px; width:100%; margin:0 auto; }
+
+/* ============ COMPONENTS ============ */
+.view{ animation:viewIn .38s cubic-bezier(.2,.8,.2,1); }
+@keyframes viewIn{ from{ opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
+@media (prefers-reduced-motion: reduce){ .view{animation:none;} }
+
+.card{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-m); box-shadow:var(--shadow-s); }
+.pad{ padding:22px; }
+.grid{ display:grid; gap:16px; }
+.grid-3{ grid-template-columns:repeat(3,1fr); }
+.grid-2{ grid-template-columns:repeat(2,1fr); }
+@media(max-width:900px){ .grid-3{grid-template-columns:1fr 1fr;} }
+@media(max-width:640px){ .grid-3,.grid-2{grid-template-columns:1fr;} }
+
+.hero{
+  position:relative; overflow:hidden; border-radius:var(--radius-l);
+  background:linear-gradient(135deg,var(--rose-soft),var(--cream-deep));
+  border:1px solid var(--line); padding:36px 32px; margin-bottom:20px;
+  display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;
+}
+.hero-eyebrow{ font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--rose-deep); font-weight:700; margin-bottom:8px;}
+.hero-count{ font-family:var(--font-disp); font-size:56px; font-weight:800; line-height:1; color:var(--ink); }
+.hero-count span{ font-size:20px; font-weight:600; color:var(--ink-soft); margin-inline-start:8px;}
+.hero-date{ margin-top:8px; color:var(--ink-soft); font-size:14px; font-weight:600; }
+.hero-ring-wrap{ position:relative; width:132px;height:132px; flex-shrink:0; }
+.hero-ring-wrap svg{ transform:rotate(-90deg); }
+.hero-ring-label{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; }
+.hero-ring-label b{ font-size:24px; font-family:var(--font-disp); }
+.hero-ring-label span{ font-size:10px; color:var(--ink-soft); font-weight:700; letter-spacing:.05em; }
+
+.stat-card{ padding:20px; display:flex; flex-direction:column; gap:10px; }
+.stat-top{ display:flex; align-items:center; justify-content:space-between; }
+.stat-icon{ width:38px;height:38px;border-radius:11px; display:flex;align-items:center;justify-content:center; }
+.stat-icon svg{ width:19px;height:19px; }
+.stat-label{ font-size:12.5px; color:var(--ink-soft); font-weight:700; }
+.stat-value{ font-size:24px; font-weight:800; font-family:var(--font-disp); }
+.stat-sub{ font-size:12px; color:var(--ink-soft); }
+
+.section-title{ display:flex; align-items:center; justify-content:space-between; margin:30px 0 14px; }
+.section-title h2{ font-family:var(--font-disp); font-size:19px; margin:0; font-weight:800; }
+.section-title .hint{ font-size:12.5px; color:var(--ink-soft); }
+
+.progress-row{ display:flex; align-items:center; gap:14px; padding:12px 0; }
+.progress-row .plabel{ width:150px; flex-shrink:0; display:flex; align-items:center; gap:8px; font-weight:700; font-size:13.5px; }
+.progress-row .plabel svg{ width:16px;height:16px; color:var(--rose-deep); }
+.pbar{ flex:1; height:9px; background:var(--cream-deep); border-radius:20px; overflow:hidden; }
+.pbar > i{ display:block; height:100%; border-radius:20px; background:linear-gradient(90deg,var(--gold-light),var(--gold-deep)); transition:width .6s cubic-bezier(.2,.8,.2,1); }
+.progress-row .pval{ width:42px; text-align:end; font-weight:700; font-size:13px; color:var(--ink-soft); flex-shrink:0;}
+
+.alert-item{ display:flex; align-items:flex-start; gap:12px; padding:13px 4px; border-bottom:1px solid var(--line); }
+.alert-item:last-child{ border-bottom:none; }
+.alert-dot{ width:9px;height:9px;border-radius:50%; margin-top:6px; flex-shrink:0; }
+.alert-text b{ display:block; font-size:13.5px; font-weight:700; }
+.alert-text span{ font-size:12px; color:var(--ink-soft); }
+.empty-note{ text-align:center; padding:30px 10px; color:var(--ink-soft); font-size:13.5px; }
+
+.btn{
+  display:inline-flex; align-items:center; gap:8px; border-radius:12px; border:1px solid transparent;
+  padding:10px 16px; font-weight:700; font-size:13.5px; transition:transform .15s ease, box-shadow .15s ease, opacity .15s;
+}
+.btn svg{ width:16px;height:16px; }
+.btn:active{ transform:scale(.96); }
+.btn-primary{ background:linear-gradient(135deg,var(--rose),var(--rose-deep)); color:#fff; box-shadow:var(--shadow-s); }
+.btn-primary:hover{ box-shadow:var(--shadow-m); }
+.btn-gold{ background:linear-gradient(135deg,var(--gold-light),var(--gold-deep)); color:#3a2c0f; }
+.btn-outline{ background:transparent; border-color:var(--line); color:var(--ink); }
+.btn-outline:hover{ border-color:var(--rose); color:var(--rose-deep); }
+.btn-ghost{ background:transparent; color:var(--ink-soft); padding:8px 10px; }
+.btn-ghost:hover{ color:var(--danger); }
+.btn-sm{ padding:7px 11px; font-size:12.5px; border-radius:10px; }
+
+.tabs{ display:flex; gap:6px; overflow-x:auto; padding-bottom:2px; margin-bottom:6px;}
+.tab{ padding:9px 15px; border-radius:11px; font-size:13px; font-weight:700; color:var(--ink-soft); background:var(--cream-deep); white-space:nowrap; border:none; flex-shrink:0;}
+.tab.active{ background:var(--rose-deep); color:#fff; }
+
+.badge{ display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:20px; font-size:11.5px; font-weight:700; }
+.badge.b-success{ background:var(--success-bg); color:var(--success); }
+.badge.b-warn{ background:var(--warn-bg); color:var(--warn); }
+.badge.b-danger{ background:var(--danger-bg); color:var(--danger); }
+.badge.b-neutral{ background:var(--cream-deep); color:var(--ink-soft); }
+.badge.b-rose{ background:var(--rose-soft); color:var(--rose-deep); }
+
+.checklist-item{ display:flex; align-items:center; gap:12px; padding:11px 6px; border-bottom:1px solid var(--line); }
+.checklist-item:last-child{ border-bottom:none; }
+.chk{ width:22px;height:22px; border-radius:7px; border:2px solid var(--ink-faint); flex-shrink:0; display:flex; align-items:center; justify-content:center; background:var(--surface); transition:all .18s ease; }
+.chk svg{ width:13px;height:13px; opacity:0; transform:scale(.5); transition:all .18s ease; color:#fff; }
+.chk.done{ background:linear-gradient(135deg,var(--success),#557d4c); border-color:transparent; }
+.chk.done svg{ opacity:1; transform:scale(1); }
+.ci-text{ flex:1; font-size:13.8px; font-weight:600; }
+.ci-text.done-text{ color:var(--ink-faint); text-decoration:line-through; }
+.ci-controls{ display:flex; align-items:center; gap:6px; flex-shrink:0; }
+.mini-select{ border:1px solid var(--line); background:var(--cream); border-radius:9px; padding:5px 8px; font-size:11.5px; font-weight:700; color:var(--ink-soft); }
+
+.table-wrap{ overflow-x:auto; }
+table{ width:100%; border-collapse:collapse; font-size:13px; min-width:720px; }
+th{ text-align:start; padding:10px 12px; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); border-bottom:2px solid var(--line); white-space:nowrap;}
+td{ padding:12px; border-bottom:1px solid var(--line); vertical-align:middle; }
+tr:hover td{ background:var(--cream-deep); }
+.row-actions{ display:flex; gap:4px; }
+
+.vendor-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
+.vendor-card{ padding:18px; display:flex; flex-direction:column; gap:10px; transition:transform .18s ease, box-shadow .18s ease; cursor:pointer;}
+.vendor-card:hover{ transform:translateY(-3px); box-shadow:var(--shadow-m); }
+.vendor-top{ display:flex; align-items:center; gap:12px; }
+.vendor-av{ width:44px;height:44px;border-radius:13px; background:var(--rose-soft); color:var(--rose-deep); display:flex;align-items:center;justify-content:center; font-weight:800; flex-shrink:0;}
+.stars{ display:flex; gap:2px; }
+.stars svg{ width:14px;height:14px; }
+
+.fab{
+  position:fixed; bottom:26px; inset-inline-end:26px; width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,var(--rose),var(--rose-deep)); color:#fff; display:none;
+  align-items:center;justify-content:center; box-shadow:var(--shadow-l); z-index:50; border:none;
+}
+.fab svg{ width:24px;height:24px; }
+
+.modal-overlay{ position:fixed; inset:0; background:rgba(20,15,12,.5); backdrop-filter:blur(2px); display:flex; align-items:center; justify-content:center; z-index:100; padding:16px; animation:fadeIn .2s ease; }
+@keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
+.modal{ background:var(--surface); border-radius:var(--radius-l); width:480px; max-width:100%; max-height:88vh; overflow-y:auto; box-shadow:var(--shadow-l); animation:modalIn .25s cubic-bezier(.2,.8,.2,1); }
+@keyframes modalIn{ from{opacity:0; transform:translateY(16px) scale(.98);} to{opacity:1; transform:none;} }
+.modal-head{ display:flex; align-items:center; justify-content:space-between; padding:20px 22px; border-bottom:1px solid var(--line); position:sticky; top:0; background:var(--surface); }
+.modal-head h3{ margin:0; font-family:var(--font-disp); font-size:18px; }
+.modal-body{ padding:20px 22px; display:flex; flex-direction:column; gap:14px; }
+.field label{ display:block; font-size:12.5px; font-weight:700; color:var(--ink-soft); margin-bottom:6px; }
+.field input, .field select, .field textarea{
+  width:100%; border:1.5px solid var(--line); border-radius:11px; padding:10px 12px; font-size:13.5px; background:var(--cream); color:var(--ink);
+  transition:border-color .15s ease;
+}
+.field input:focus, .field select:focus, .field textarea:focus{ border-color:var(--rose); outline:none; }
+.field-row{ display:flex; gap:12px; }
+.field-row .field{ flex:1; }
+.modal-foot{ display:flex; justify-content:flex-end; gap:10px; padding:16px 22px; border-top:1px solid var(--line); position:sticky; bottom:0; background:var(--surface); }
+
+.toast{ position:fixed; bottom:26px; inset-inline-start:50%; transform:translateX(-50%); background:var(--ink); color:var(--cream); padding:12px 20px; border-radius:14px; font-size:13.5px; font-weight:600; box-shadow:var(--shadow-l); z-index:200; animation:toastIn .25s ease; }
+[dir="rtl"] .toast{ transform:translateX(50%); }
+@keyframes toastIn{ from{opacity:0; transform:translate(-50%,10px);} to{opacity:1; transform:translate(-50%,0);} }
+
+.notif-panel{ position:absolute; top:52px; inset-inline-end:0; width:340px; max-height:420px; overflow-y:auto; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-m); box-shadow:var(--shadow-l); z-index:60; padding:6px; animation:modalIn .18s ease; }
+.notif-panel .alert-item{ padding:12px 10px; border-radius:10px; }
+.notif-panel .alert-item:hover{ background:var(--cream-deep); }
+
+.chart-bars{ display:flex; align-items:flex-end; gap:18px; height:170px; padding:10px 6px 0; }
+.chart-col{ flex:1; display:flex; flex-direction:column; align-items:center; gap:8px; height:100%; justify-content:flex-end; }
+.chart-col .bars{ width:100%; max-width:44px; display:flex; gap:4px; align-items:flex-end; height:130px; }
+.chart-col .bar{ flex:1; border-radius:6px 6px 2px 2px; transition:height .6s cubic-bezier(.2,.8,.2,1); }
+.chart-col .glabel{ font-size:11px; font-weight:700; color:var(--ink-soft); text-align:center; }
+.legend{ display:flex; gap:16px; justify-content:center; margin-top:14px; flex-wrap:wrap; }
+.legend span{ display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--ink-soft); }
+.legend i{ width:10px;height:10px;border-radius:3px; }
+
+.theme-menu{ position:absolute; top:52px; inset-inline-end:0; background:var(--surface); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow-l); padding:6px; z-index:60; width:170px;}
+.theme-menu button{ width:100%; text-align:start; padding:9px 12px; border:none; background:transparent; border-radius:10px; font-size:13px; font-weight:600; display:flex; align-items:center; gap:8px; color:var(--ink); }
+.theme-menu button:hover{ background:var(--cream-deep); }
+.swatch{ width:14px;height:14px;border-radius:5px; flex-shrink:0; }
+
+.footer-note{ text-align:center; color:var(--ink-faint); font-size:12px; margin-top:40px; padding-bottom:10px;}
+
+@media(max-width:960px){
+  .sidebar{ position:fixed; inset-inline-start:0; top:0; transform:translateX(-105%); box-shadow:var(--shadow-l); }
+  [dir="rtl"] .sidebar{ transform:translateX(105%); }
+  .sidebar.open{ transform:translateX(0); }
+  .hamburger{ display:flex; }
+  .content{ padding:18px 16px 90px; }
+  .topbar{ padding:0 14px; }
+  .fab{ display:flex; }
+  .hero{ padding:26px 20px; }
+  .hero-count{ font-size:40px; }
+  .sidebar-scrim{ position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:39; display:none; }
+  .sidebar-scrim.show{ display:block; }
+}
+/* ============ LOGIN SCREEN ============ */
+#loginScreen{display:none !important;
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  background:var(--cream); padding:20px;
+}
+.login-card{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-l);
+  box-shadow:var(--shadow-m); padding:36px 30px; width:100%; max-width:360px; text-align:center;
+}
+.login-card .brand-mark{ width:52px;height:52px;border-radius:16px;margin:0 auto 14px; font-size:24px; }
+.login-card h1{ font-family:var(--font-disp); font-size:22px; margin:0 0 6px; }
+.login-card p{ color:var(--ink-soft); font-size:13px; margin:0 0 22px; }
+.login-field{ text-align:start; margin-bottom:14px; }
+.login-field label{ font-size:12px; font-weight:700; color:var(--ink-soft); display:block; margin-bottom:6px; }
+.login-field input{
+  width:100%; padding:11px 13px; border-radius:12px; border:1px solid var(--line);
+  background:var(--cream); color:var(--ink); font-size:14px;
+}
+.login-field input:focus-visible{ border-color:var(--gold-deep); }
+.login-btn{
+  width:100%; padding:12px; border-radius:12px; border:none; margin-top:6px;
+  background:linear-gradient(135deg,var(--rose),var(--rose-deep)); color:#fff; font-weight:700; font-size:14px;
+}
+.login-btn:disabled{ opacity:.6; }
+.login-error{ color:var(--danger); background:var(--danger-bg); border-radius:10px; padding:9px 12px; font-size:12.5px; margin-bottom:14px; display:none; }
+.login-error.show{ display:block; }
+.login-switch{ margin-top:16px; font-size:12.5px; color:var(--ink-soft); }
+.login-switch button{ background:none; border:none; color:var(--rose-deep); font-weight:700; text-decoration:underline; padding:0; }
+</style>
+</head>
+<body>
+<div id="loginScreen" style="display:none">
+  <div class="login-card">
+    <div class="brand-mark">💍</div>
+    <h1 id="loginTitle">تسجيل الدخول</h1>
+    <p id="loginSubtitle">جهّزوا حفل زفافكم سوا، أونلاين</p>
+    <div class="login-error" id="loginError"></div>
+    <form id="loginForm">
+      <div class="login-field">
+        <label id="labelEmail">البريد الإلكتروني</label>
+        <input type="email" id="loginEmail" autocomplete="username" required>
+      </div>
+      <div class="login-field">
+        <label id="labelPass">كلمة المرور</label>
+        <input type="password" id="loginPassword" autocomplete="current-password" required minlength="6">
+      </div>
+      <div class="login-field" id="roleField" style="display:none">
+        <label>أنت مين؟</label>
+        <select id="loginRole">
+          <option value="ahmed">Ahmed</option>
+          <option value="faten">Faten</option>
+        </select>
+      </div>
+      <button type="submit" class="login-btn" id="loginSubmitBtn">دخول</button>
+    </form>
+    <button type="button" id="forgotPasswordBtn"
+      style="margin-top:10px;background:none;border:0;color:var(--rose-deep);font-weight:700;text-decoration:underline;cursor:pointer;">
+      نسيت كلمة المرور؟
+    </button>
+    <div class="login-switch">
+      <span id="switchText">أول مرة تدخل؟</span>
+      <button type="button" id="switchModeBtn">إنشاء حساب</button>
+    </div>
+  </div>
+</div>
+<div id="app"></div>
+
+<!-- Firebase (compat SDK — no build step needed) -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script>
+/* ============================================================
+   FIREBASE CONFIG — استبدل القيم دي بقيم مشروعك من Firebase Console
+   Project Settings → General → Your apps → SDK setup and configuration
+   ============================================================ */
+const FIREBASE_CONFIG = {
+     apiKey: "AIzaSyA1nfrlklEV__agDSPDF1-Zm8bB-iImjpQ",
+    authDomain: "our-wedding-42e0e.firebaseapp.com",
+    projectId: "our-wedding-42e0e",
+    storageBucket: "our-wedding-42e0e.firebasestorage.app",
+    messagingSenderId: "263029214526",
+    appId: "1:263029214526:web:fa6e68880349873d67f06f",
+    measurementId: "G-N4KGSRGY46"
+};
+// معرّف وثيقة البيانات المشتركة بينك وبين خطيبتك. صلاحيات Firestore يجب أن تسمح للمستخدمين المصرح لهم فقط.
+const COUPLE_DOC_ID = "our-wedding";
+
+firebase.initializeApp(FIREBASE_CONFIG);
+const auth = firebase.auth();
+const db = firebase.firestore();
+let unsubscribeSnapshot = null;
+let applyingRemoteUpdate = false;
+</script>
+
+<script>
+/* ============================================================
+   DATA / TRANSLATIONS
+   ============================================================ */
+const ICON = {
+  dashboard:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg>',
+  bride:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="3.2"/><path d="M6 21c0-4 2.5-6.5 6-6.5S18 17 18 21"/><path d="M9 4c0-1.5 3-1.5 3 0M12 4c0-1.5 3-1.5 3 0"/></svg>',
+  groom:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="3.2"/><path d="M6 21c0-4 2.5-6.5 6-6.5S18 17 18 21"/><path d="M9.5 15.5l1.5 2 1-1 1 1 1.5-2"/></svg>',
+  apartment:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>',
+  venue:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2 4-2 2-2-2 2-4z"/><path d="M4 21V10l8-4 8 4v11"/><path d="M9 21v-6h6v6"/></svg>',
+  honeymoon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 16l19-6-4 4-2 7-3-5-6-2 6-2-4-4z"/></svg>',
+  budget:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2.5"/><path d="M2 10h20"/><circle cx="16" cy="15" r="1.6"/></svg>',
+  guests:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3.5 2.8-6 7-6s7 2.5 7 6"/><circle cx="17.5" cy="9" r="2.3"/><path d="M16 14c2.7.3 4.5 2.2 4.5 5.3"/></svg>',
+  vendors:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/><path d="M4 9a3 3 0 006 0 3 3 0 006 0 3 3 0 006 0"/></svg>',
+  timeline:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2.5"/><path d="M3 9h18M8 2v4M16 2v4"/><path d="M8 13h2M14 13h2M8 17h2M14 17h2"/></svg>',
+  settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a1.7 1.7 0 000-3l1-1.7-1.7-1.7-1.7 1a1.7 1.7 0 00-3 0l-1-1.7-1.7 1.7 1 1.7a1.7 1.7 0 00-3 0l-1.7-1-1.7 1.7 1 1.7a1.7 1.7 0 000 3l-1 1.7 1.7 1.7 1.7-1a1.7 1.7 0 003 0l1 1.7 1.7-1.7-1-1.7a1.7 1.7 0 003 0l1.7 1 1.7-1.7z"/></svg>',
+  bell:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M10 21a2 2 0 004 0"/></svg>',
+  sun:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>',
+  moon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 019.5 4 8.5 8.5 0 1020 14.5z"/></svg>',
+  globe:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 4 6 4 9s-1.5 6.4-4 9c-2.5-2.6-4-6-4-9s1.5-6.4 4-9z"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>',
+  close:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l6 6L20 6"/></svg>',
+  star:'<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l3.1 6.3 6.9 1-5 4.9L18.2 21 12 17.6 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg>',
+  starOutline:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l3.1 6.3 6.9 1-5 4.9L18.2 21 12 17.6 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg>',
+  menu:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>',
+  plane:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 16l19-6-4 4-2 7-3-5-6-2 6-2-4-4z"/></svg>',
+  chevron:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
+  alert:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L2.6 18a1.8 1.8 0 001.6 2.7h15.6a1.8 1.8 0 001.6-2.7L13.7 3.9a1.8 1.8 0 00-3.4 0z"/></svg>',
+};
+
+const T = {
+  ar:{
+    appName:'زفافنا', appTag:'نظام تجهيزات الزواج',
+    nav_dashboard:'الرئيسية', nav_bride:'العروسة', nav_groom:'العريس', nav_apartment:'الشقة',
+    nav_wedding:'الفرح', nav_honeymoon:'شهر العسل', nav_budget:'الميزانية', nav_guests:'المدعوين',
+    nav_vendors:'الموردين', nav_timeline:'الجدول الزمني', nav_settings:'الإعدادات',
+    countdown_eyebrow:'العد التنازلي لفرحنا', days:'يوم', weeks:'أسبوع متبقي',
+    totalBudget:'إجمالي الميزانية', totalPaid:'إجمالي المدفوع', totalRemaining:'المتبقي',
+    consumption:'نسبة الاستهلاك', overallProgress:'نسبة التجهيز العامة',
+    categoryProgress:'نسبة التجهيز حسب القسم', alertsTitle:'التنبيهات القادمة', noAlerts:'لا توجد تنبيهات حاليًا، كل شيء تحت السيطرة ✨',
+    quickChart:'الميزانية مقابل الفعلي', addedBy:'أضيفت بواسطة',
+    addItem:'إضافة بند', addItemPh:'اكتب بند جديد واضغط Enter',
+    priority:'الأولوية', assigned:'المسؤول', high:'عالية', medium:'متوسطة', low:'منخفضة',
+    both:'الاثنان', bride:'العروسة', groom:'العريس',
+    section:'القسم', item:'البند', planned:'الميزانية المخططة', actual:'السعر الفعلي', paid:'المدفوع',
+    remaining:'المتبقي', dueDate:'تاريخ الاستحقاق', method:'طريقة الدفع', vendor:'المورد', status:'الحالة', notes:'ملاحظات', actions:'إجراءات',
+    addExpense:'إضافة مصروف', budgetSummary:'ملخص الميزانية', smartBudget:'التوزيع الذكي المقترح',
+    st_planned:'مخطط', st_quoted:'تم عرض السعر', st_deposit:'تم دفع عربون', st_partial:'مدفوع جزئيًا', st_full:'مدفوع بالكامل', st_cancelled:'ملغي',
+    pm_cash:'نقدًا', pm_card:'بطاقة', pm_transfer:'تحويل',
+    name:'الاسم', family:'العائلة', count:'عدد الأشخاص', phone:'رقم الهاتف', rsvp:'حالة الدعوة',
+    addGuest:'إضافة مدعو', totalGuests:'إجمالي المدعوين', confirmed:'مؤكد', maybe:'ربما', declined:'اعتذر', invited:'تمت الدعوة',
+    addVendor:'إضافة مورد', category:'الفئة', total:'الإجمالي', deposit:'العربون', contract:'العقد', rating:'التقييم', contractYes:'موقّع', contractNo:'غير موقّع',
+    save:'حفظ', cancel:'إلغاء', delete:'حذف', edit:'تعديل', close:'إغلاق',
+    monthsBefore:'قبل الفرح بـ', monthsLeft:'أشهر', weddingSuffix:'',
+    m12:'12 شهر', m9:'9 أشهر', m6:'6 أشهر', m3:'3 أشهر', m1:'شهر واحد', mLast:'آخر أسبوع',
+    settingsTitle:'الإعدادات', language:'اللغة', theme:'التصميم', weddingDate:'تاريخ الفرح', budgetTotal:'إجمالي ميزانية الزواج',
+    themeRose:'روز جولد فاخر', themeMidnight:'أناقة الليل',
+    currentUser:'المستخدم الحالي',
+    dueSoon:'دفعة مستحقة قريبًا', overdue:'دفعة متأخرة', overBudget:'تجاوز الميزانية', unconfirmed:'حجز غير مؤكد',
+    saved:'تم الحفظ بنجاح', deleted:'تم الحذف', comingSoon:'هذه الميزة (تصدير PDF/Excel، حسابات دخول متعددة) تحتاج سيرفر خلفي — تقدر تطلب مني أجهزها بعد كده 🙂',
+    export:'تصدير', noItemsYet:'لا توجد بنود بعد — أضف أول بند بالأسفل',
+    noGuests:'لا يوجد مدعوين بعد', noVendors:'لا يوجد موردين بعد. أضف أول مورد.',
+    of:'من', overview:'نظرة عامة على تجهيزات', markDone:'تم', currency:'جنيه',
+    ep_ar:'مثال', weekLabel:'أسبوع', taskDone:'مهمة مكتملة', chartBudget:'المخطط', chartActual:'الفعلي',
+  },
+  en:{
+    appName:'Our Wedding', appTag:'Wedding Preparation System',
+    nav_dashboard:'Dashboard', nav_bride:'Bride', nav_groom:'Groom', nav_apartment:'Apartment',
+    nav_wedding:'Wedding', nav_honeymoon:'Honeymoon', nav_budget:'Budget', nav_guests:'Guests',
+    nav_vendors:'Vendors', nav_timeline:'Timeline', nav_settings:'Settings',
+    countdown_eyebrow:'Countdown to our wedding', days:'Days', weeks:'weeks left',
+    totalBudget:'Total Budget', totalPaid:'Total Paid', totalRemaining:'Remaining',
+    consumption:'Budget Used', overallProgress:'Overall Preparation',
+    categoryProgress:'Progress by Category', alertsTitle:'Upcoming Alerts', noAlerts:'No alerts right now — everything is under control ✨',
+    quickChart:'Budget vs Actual', addedBy:'Added by',
+    addItem:'Add item', addItemPh:'Type a new item and press Enter',
+    priority:'Priority', assigned:'Assigned', high:'High', medium:'Medium', low:'Low',
+    both:'Both', bride:'Bride', groom:'Groom',
+    section:'Section', item:'Item', planned:'Planned', actual:'Actual', paid:'Paid',
+    remaining:'Remaining', dueDate:'Due Date', method:'Payment Method', vendor:'Vendor', status:'Status', notes:'Notes', actions:'Actions',
+    addExpense:'Add expense', budgetSummary:'Budget Summary', smartBudget:'Suggested Smart Split',
+    st_planned:'Planned', st_quoted:'Quoted', st_deposit:'Deposit Paid', st_partial:'Partially Paid', st_full:'Fully Paid', st_cancelled:'Cancelled',
+    pm_cash:'Cash', pm_card:'Card', pm_transfer:'Transfer',
+    name:'Name', family:'Family', count:'Guest Count', phone:'Phone', rsvp:'RSVP',
+    addGuest:'Add guest', totalGuests:'Total Guests', confirmed:'Confirmed', maybe:'Maybe', declined:'Declined', invited:'Invited',
+    addVendor:'Add vendor', category:'Category', total:'Total', deposit:'Deposit', contract:'Contract', rating:'Rating', contractYes:'Signed', contractNo:'Not signed',
+    save:'Save', cancel:'Cancel', delete:'Delete', edit:'Edit', close:'Close',
+    monthsBefore:'', monthsLeft:'before', weddingSuffix:' before the wedding',
+    m12:'12 months', m9:'9 months', m6:'6 months', m3:'3 months', m1:'1 month', mLast:'Last week',
+    settingsTitle:'Settings', language:'Language', theme:'Theme', weddingDate:'Wedding Date', budgetTotal:'Total Wedding Budget',
+    themeRose:'Rose Gold Luxury', themeMidnight:'Midnight Elegance',
+    currentUser:'Current user',
+    dueSoon:'Payment due soon', overdue:'Payment overdue', overBudget:'Over budget', unconfirmed:'Booking unconfirmed',
+    saved:'Saved successfully', deleted:'Deleted', comingSoon:'This feature (PDF/Excel export, multi-account login) needs a backend server — happy to build it next 🙂',
+    export:'Export', noItemsYet:'No items yet — add the first one below',
+    noGuests:'No guests yet', noVendors:'No vendors yet. Add your first vendor.',
+    of:'of', overview:'Preparation overview', markDone:'Done', currency:'EGP',
+    ep_ar:'e.g.', weekLabel:'Week', taskDone:'task completed', chartBudget:'Planned', chartActual:'Actual',
+  }
+};
+
+const CATS = ['bride','groom','apartment','wedding','honeymoon'];
+const CAT_ICON = {bride:'bride',groom:'groom',apartment:'apartment',wedding:'venue',honeymoon:'honeymoon'};
+
+// checklist definitions: [ar, en] pairs
+const CHECKLIST_DEFS = {
+  bride: [
+    ['الملابس','Clothes',['فستان الزفاف|Wedding Dress','فستان الخطوبة|Engagement Dress','فساتين خروج|Going-out Dresses','ملابس منزل|Home Wear','ملابس نوم|Sleepwear','ملابس داخلية|Underwear','ملابس صيفية|Summer Clothes','ملابس شتوية|Winter Clothes','حذاء الفرح|Wedding Shoes','أحذية خروج|Going-out Shoes','شباشب منزل|House Slippers']],
+    ['الإكسسوارات','Accessories',['الشبكة|Wedding Set','خاتم الزواج|Wedding Ring','حلق|Earrings','سلسلة|Necklace','أساور|Bracelets','ساعة|Watch','شنط|Bags','نظارات|Glasses','إكسسوارات شعر|Hair Accessories','طرحة|Veil']],
+    ['المكياج والعناية','Makeup & Care',['Foundation|Foundation','Concealer|Concealer','Powder|Powder','Blush|Blush','Mascara|Mascara','Eyeliner|Eyeliner','Lipstick|Lipstick','فرش مكياج|Makeup Brushes','العناية بالبشرة|Skincare','العناية بالشعر|Haircare','العناية بالجسم|Body Care','برفان|Perfume','مزيل عرق|Deodorant','أدوات الأظافر|Nail Tools','أدوات الشعر|Hair Tools']],
+    ['تجهيزات يوم الفرح','Wedding Day',['خبيرة مكياج|Makeup Artist','مصفف شعر|Hair Stylist','فستان الزفاف|Wedding Dress','طرحة|Veil','بوكيه الورد|Bouquet','الحذاء|Shoes','المجوهرات|Jewelry','حقيبة الطوارئ|Emergency Kit','برفان|Perfume','روب الاستعداد|Getting Ready Outfit']],
+  ],
+  groom: [
+    ['الملابس','Clothes',['بدلة الفرح|Wedding Suit','بدلة احتياطية|Backup Suit','قميص|Shirt','كرافتة|Tie','بابيون|Bow Tie','حزام|Belt','حذاء|Shoes','جوارب|Socks','ملابس داخلية|Underwear','ملابس منزل|Home Wear','ملابس نوم|Sleepwear','ملابس خروج|Going-out Clothes','ملابس صيفية|Summer Clothes','ملابس شتوية|Winter Clothes']],
+    ['الإكسسوارات','Accessories',['ساعة|Watch','خاتم|Ring','محفظة|Wallet','نظارة شمس|Sunglasses','كبك|Cufflinks','حزام|Belt','برفان|Perfume']],
+    ['العناية الشخصية','Grooming',['قصة شعر|Haircut','اللحية|Beard','الحلاقة|Shaving','العناية بالبشرة|Skincare','العناية بالشعر|Haircare','برفان|Perfume','مزيل عرق|Deodorant','أدوات الحلاقة|Shaving Kit','مانيكير|Manicure','باديكير|Pedicure']],
+    ['يوم الفرح','Wedding Day',['البدلة|Suit','القميص|Shirt','الحذاء|Shoes','الساعة|Watch','البرفان|Perfume','الخاتم|Ring','حقيبة الطوارئ|Emergency Kit']],
+  ],
+  apartment: [
+    ['غرفة المعيشة','Living Room',['ركنة|Sectional Sofa','كنبة|Sofa','طاولة قهوة|Coffee Table','وحدة تلفزيون|TV Unit','تلفزيون|TV','ستائر|Curtains','سجاد|Carpet','إضاءة|Lighting','ديكورات|Decorations','مخدات|Cushions']],
+    ['غرفة النوم','Bedroom',['سرير|Bed','مرتبة|Mattress','دولاب|Wardrobe','2 كومودينو|2 Nightstands','تسريحة|Dressing Table','مرآة|Mirror','ستائر|Curtains','سجاد|Carpet','ملايات|Bed Sheets','مخدات|Pillows','بطانية|Blanket','لحاف|Duvet','كفر لحاف|Bed Cover']],
+    ['السفرة','Dining Room',['طاولة سفرة|Dining Table','كراسي|Chairs','بوفيه|Buffet','رنر|Table Runner','إكسسوارات سفرة|Dining Accessories']],
+    ['المطبخ','Kitchen',['ثلاجة|Refrigerator','غسالة|Washing Machine','غسالة أطباق|Dishwasher','فرن|Oven','بوتاجاز|Cooker','شفاط|Hood','ميكروويف|Microwave','غلاية|Kettle','خلاط|Blender','فوود بروسيسور|Food Processor','إير فراير|Air Fryer','ماكينة قهوة|Coffee Machine','طقم حلل|Pot Set','طاسات|Pans','صواني|Trays','حلة ضغط|Pressure Cooker','سكاكين|Knives','لوح تقطيع|Cutting Board','مغارف|Ladles','مصفاة|Strainer','أدوات تقديم|Serving Tools','أدوات تخزين|Storage Tools','أطباق|Plates','أطباق عميقة|Bowls','أطباق حلويات|Dessert Plates','أكواب|Glasses','مجات|Mugs','كاسات|Cups','ملاعق|Spoons','شوك|Forks','سكاكين مائدة|Table Knives','أطقم تقديم|Serving Sets']],
+    ['الحمام','Bathroom',['مناشف|Towels','مفرش حمام|Bath Mat','ستارة حمام|Shower Curtain','موزع صابون|Soap Dispenser','حامل فرشاة أسنان|Toothbrush Holder','تخزين|Storage','مستلزمات تنظيف|Cleaning Supplies']],
+    ['أدوات التنظيف','Cleaning Tools',['مكنسة كهربائية|Vacuum Cleaner','ممسحة|Mop','مقشة|Broom','جاروف|Dustpan','منتجات تنظيف|Cleaning Products','سلة غسيل|Laundry Basket','شماعات|Hangers','مكواة|Iron','طاولة كي|Ironing Board']],
+  ],
+  wedding: [
+    ['القاعة','Venue',['اختيار القاعة|Choose Venue','حجز القاعة|Book Venue','دفع العربون|Pay Deposit','دفع باقي المبلغ|Pay Remaining Amount','تحديد عدد الضيوف|Set Guest Count','تحديد المنيو|Set Menu','تحديد المشروبات|Set Beverages']],
+    ['التصوير','Photography',['مصور فوتوغرافي|Photographer','مصور فيديو|Videographer','جلسة تصوير قبل الفرح|Pre-Wedding Session','ألبوم الفرح|Wedding Album','صور رقمية|Digital Photos','فيديو الفرح|Wedding Video']],
+    ['الديكور','Decoration',['الاستيدج|Stage','ورد|Flowers','إضاءة|Lighting','ديكور الطاولات|Tables Decoration','ديكور المدخل|Entrance Decoration','طاولة العروسين|Bride & Groom Table']],
+    ['الموسيقى','Music',['دي جي|DJ','نظام صوت|Sound System','قائمة أغاني الفرح|Wedding Playlist','أغنية الرقصة الأولى|First Dance Song','أغنية الدخول|Entrance Song']],
+    ['الدعوات','Invitations',['قائمة المدعوين|Guest List','تصميم الدعوة|Invitation Design','دعوات مطبوعة|Printed Invitations','دعوات رقمية|Digital Invitations','تأكيد المدعوين|Confirm Guests']],
+    ['إضافات','Extras',['تورتة الفرح|Wedding Cake','بوكيه|Bouquet','ديكور السيارة|Car Decoration','هدايا الضيوف|Wedding Favors','دفتر الضيوف|Guest Book','خطة الجلوس|Seating Plan']],
+  ],
+  honeymoon: [
+    ['التخطيط','Planning',['اختيار الدولة|Choose Country','اختيار المدينة|Choose City','تحديد تاريخ السفر|Set Travel Date','تحديد عدد الأيام|Set Number of Days','تحديد الميزانية|Set Budget']],
+    ['الحجز','Booking',['تذكرة الطيران|Flight','الفندق|Hotel','مواصلات المطار|Airport Transfer','المواصلات|Transportation','الأنشطة|Activities','المطاعم|Restaurants']],
+    ['تجهيز السفر','Travel Prep',['جوازات السفر|Passports','التأشيرة|Visa','تأمين السفر|Travel Insurance','الشنط|Suitcases','ملابس السفر|Travel Clothes','مستلزمات النظافة|Toiletries','أدوية|Medicines','شواحن|Chargers','باور بانك|Power Bank']],
+    ['ميزانية شهر العسل','Honeymoon Budget',['تذاكر الطيران|Flight Tickets','الفندق|Hotel','المواصلات|Transportation','الأكل|Food','الأنشطة|Activities','التسوق|Shopping','المصروف اليومي|Daily Allowance','مصروف الطوارئ|Emergency Money']],
+  ],
+};
+
+const TIMELINE_DEFS = [
+  ['m12', ['تحديد الميزانية|Set the budget','تحديد موعد الفرح|Set the wedding date','حجز القاعة|Book the venue','بدء تجهيز الشقة|Start apartment prep']],
+  ['m9', ['اختيار الأثاث|Choose furniture','اختيار الأجهزة|Choose appliances','حجز المصور|Book photographer','تحديد شهر العسل|Decide honeymoon destination']],
+  ['m6', ['شراء الأجهزة|Buy appliances','شراء الأثاث|Buy furniture','اختيار فستان العروسة|Choose wedding dress','اختيار بدلة العريس|Choose groom suit','حجز شهر العسل|Book honeymoon']],
+  ['m3', ['الدعوات|Invitations','تجهيزات العروسة|Bride prep','تجهيزات العريس|Groom prep','تجهيز أوراق الزواج|Wedding paperwork','تأكيد الحجوزات|Confirm bookings']],
+  ['m1', ['البروفة الأخيرة|Final fitting','موعد الشعر|Hair appointment','تجربة المكياج|Makeup trial','تأكيد القاعة|Confirm venue','تأكيد المصور|Confirm photographer','تأكيد الفندق|Confirm hotel','تجهيز شنط السفر|Pack travel bags']],
+  ['mLast', ['دفع المستحقات|Pay dues','تجهيز الملابس|Prepare clothes','تجهيز الخواتم|Prepare rings','تجهيز الأوراق|Prepare documents','تجهيز شنطة الطوارئ|Prepare emergency bag','تأكيد كل الحجوزات|Confirm all bookings']],
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let state = {
+  lang:'ar', theme:'rose', view:'dashboard', currentUser:'ahmed',
+  weddingDate:'2026-12-23', budgetTotal:500000,
+  checklist:{}, timeline:{}, budgetItems:[], guests:[], vendors:[],
+  sidebarOpen:false, notifOpen:false, themeMenuOpen:false, modal:null,
+};
+let saveTimer=null;
+let autoSaveInstalled=false;
+
+function seedChecklist(){
+  const out={};
+  CATS.forEach(cat=>{
+    out[cat]=CHECKLIST_DEFS[cat].map((sec,si)=>({
+      name_ar:sec[0], name_en:sec[1],
+      items:sec[2].map((pair,ii)=>{
+        const [ar,en]=pair.split('|');
+        return {id:cat+'-'+si+'-'+ii, ar, en, done:false, priority:'medium', assigned:'both'};
+      })
+    }));
+  });
+  return out;
+}
+function seedTimeline(){
+  const out={};
+  TIMELINE_DEFS.forEach(([key,items])=>{
+    out[key]=items.map((pair,ii)=>{
+      const [ar,en]=pair.split('|');
+      return {id:'tl-'+key+'-'+ii, ar, en, done:false};
+    });
+  });
+  return out;
+}
+
+function t(k){ return T[state.lang][k] || k; }
+function fmtMoney(n){ n=Math.round(n||0); return n.toLocaleString(state.lang==='ar'?'ar-EG':'en-US')+' '+t('currency'); }
+
+/* ============================================================
+   PERSISTENCE
+   ============================================================ */
+const STORAGE_KEY='wedding-plan-data';
+function serializeState(){
+  const {sidebarOpen,notifOpen,themeMenuOpen,modal,...toSave}=state;
+  return toSave;
+}
+function docRef(){ return db.collection('couples').doc(COUPLE_DOC_ID); }
+
+async function storageSet(valueObj){
+  // local cache for instant reload / offline fallback
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(valueObj)); }catch(e){}
+  await docRef().set(valueObj, {merge:false});
+}
+async function storageGet(){
+  try{
+    const snap = await docRef().get();
+    if(snap.exists) return snap.data();
+  }catch(e){ console.warn('firestore read failed',e); }
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return null;
+}
+function startRealtimeSync(){
+  if(unsubscribeSnapshot) unsubscribeSnapshot();
+  unsubscribeSnapshot = docRef().onSnapshot(snap=>{
+    if(applyingRemoteUpdate) return;
+    if(!snap.exists) return;
+    const saved = snap.data();
+    state = Object.assign(state, saved, {sidebarOpen:state.sidebarOpen,notifOpen:false,themeMenuOpen:false,modal:state.modal});
+    render();
+  }, err=>console.warn('realtime sync error',err));
+}
+async function loadState(){
+  try{
+    const raw=await storageGet();
+    if(raw){
+      state=Object.assign(state,raw,{sidebarOpen:false,notifOpen:false,themeMenuOpen:false,modal:null});
+    }else{
+      state.checklist=seedChecklist(); state.timeline=seedTimeline();
+      await persist(true);
+    }
+  }catch(e){
+    console.error('load failed',e);
+    state.checklist=seedChecklist(); state.timeline=seedTimeline();
+  }
+  startRealtimeSync();
+  render();
+}
+let saveStatusTimer=null;
+function setSaveStatus(type){
+  let el=document.getElementById('autoSaveStatus');
+  if(!el){
+    el=document.createElement('div'); el.id='autoSaveStatus';
+    el.style.cssText='position:fixed;bottom:18px;right:18px;z-index:99999;padding:9px 14px;border-radius:999px;background:rgba(20,20,20,.88);color:#fff;font:600 13px system-ui;box-shadow:0 6px 20px rgba(0,0,0,.15);transition:.2s;';
+    document.body.appendChild(el);
+  }
+  el.textContent=type==='saving'?'🟡 جاري الحفظ...':type==='saved'?'🟢 تم الحفظ أونلاين':'🔴 تعذر الحفظ';
+  clearTimeout(saveStatusTimer);
+  if(type==='saved') saveStatusTimer=setTimeout(()=>el.remove(),1800);
+}
+async function persist(immediate=false){
+  clearTimeout(saveTimer); setSaveStatus('saving');
+  const doSave=async()=>{
+    applyingRemoteUpdate=true;
+    try{ await storageSet(serializeState()); setSaveStatus('saved'); }
+    catch(e){ console.error('save failed',e); setSaveStatus('error'); }
+    finally{ setTimeout(()=>{applyingRemoteUpdate=false;},400); }
+  };
+  if(immediate){ await doSave(); return; }
+  return new Promise(resolve=>{
+    saveTimer=setTimeout(async()=>{ await doSave(); resolve(); },350);
+  });
+}
+function installAutoSave(){
+  if(autoSaveInstalled) return;
+  autoSaveInstalled=true;
+
+  const saveFromForm=()=>{
+    const m=state.modal;
+    if(!m || !m.data) return;
+    const d=m.data;
+
+    if(m.type==='budget'){
+      Object.assign(d,{
+        section:val('f_section'), assigned:val('f_assigned'), item:val('f_item'),
+        planned:+val('f_planned')||0, actual:+val('f_actual')||0, paid:+val('f_paid')||0,
+        dueDate:val('f_due'), status:val('f_status'), vendorName:val('f_vendor'),
+        notes:val('f_notes')
+      });
+    }else if(m.type==='guest'){
+      Object.assign(d,{
+        name:val('f_name'), family:val('f_family'),
+        count:+val('f_count')||1, phone:val('f_phone')
+      });
+    }else if(m.type==='vendor'){
+      Object.assign(d,{
+        name:val('f_vname'), category:val('f_vcat'), phone:val('f_vphone'),
+        total:+val('f_vtotal')||0, deposit:+val('f_vdeposit')||0,
+        rating:+val('f_vrating')||0, contract:val('f_vcontract')==='1',
+        notes:val('f_vnotes')
+      });
+    }
+    persist();
+  };
+
+  // One delegated listener only; no duplicate listeners after re-login.
+  document.addEventListener('input', (e)=>{
+    if(e.target && e.target.id && e.target.id.startsWith('f_')) saveFromForm();
+  }, true);
+  document.addEventListener('change', (e)=>{
+    if(e.target && e.target.id && e.target.id.startsWith('f_')) saveFromForm();
+  }, true);
+
+  window.addEventListener('beforeunload',()=>{
+    try{
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(serializeState()));
+    }catch(e){}
+  });
+}
+function update(mut, opts={}){
+  mut(); render(); persist(); if(opts.toast) showToast(opts.toast);
+}
+
+let toastTimer=null;
+function showToast(msg){
+  clearTimeout(toastTimer);
+  const old = document.querySelector('.toast'); if(old) old.remove();
+  const el = document.createElement('div');
+  el.className='toast'; el.textContent=msg;
+  document.body.appendChild(el);
+  toastTimer=setTimeout(()=>el.remove(),2200);
+}
+
+/* ============================================================
+   COMPUTATIONS
+   ============================================================ */
+function catProgress(cat){
+  const secs = state.checklist[cat]||[];
+  let total=0, done=0;
+  secs.forEach(s=>s.items.forEach(i=>{ total++; if(i.done) done++; }));
+  return total? Math.round(done/total*100):0;
+}
+function overallProgress(){
+  const vals = CATS.map(catProgress);
+  return vals.length? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length):0;
+}
+function budgetTotals(){
+  const planned = state.budgetItems.reduce((s,i)=>s+(+i.planned||0),0);
+  const actual = state.budgetItems.reduce((s,i)=>s+(+i.actual||0),0);
+  const paid = state.budgetItems.reduce((s,i)=>s+(+i.paid||0),0);
+  return {planned, actual, paid, remaining: state.budgetTotal - paid};
+}
+function daysLeft(){
+  const d1 = new Date(state.weddingDate+'T00:00:00');
+  const d0 = new Date(); d0.setHours(0,0,0,0);
+  return Math.max(0, Math.ceil((d1-d0)/86400000));
+}
+function computeAlerts(){
+  const alerts=[];
+  const today = new Date(); today.setHours(0,0,0,0);
+  state.budgetItems.forEach(it=>{
+    if(!it.dueDate || it.status==='fully_paid' || it.status==='cancelled') return;
+    const d = new Date(it.dueDate+'T00:00:00');
+    const diff = Math.ceil((d-today)/86400000);
+    if(diff<0) alerts.push({type:'danger', label:t('overdue'), text:(state.lang==='ar'?it.item_ar||it.item:it.item_en||it.item)});
+    else if(diff<=7) alerts.push({type:'warn', label:t('dueSoon'), text:(state.lang==='ar'?it.item_ar||it.item:it.item_en||it.item)});
+    if((+it.actual||0) > (+it.planned||0) && (+it.planned||0)>0) alerts.push({type:'danger', label:t('overBudget'), text:(state.lang==='ar'?it.item_ar||it.item:it.item_en||it.item)});
+  });
+  state.vendors.forEach(v=>{
+    if(!v.contract) alerts.push({type:'warn', label:t('unconfirmed'), text:v.name});
+  });
+  return alerts;
+}
+
+/* ============================================================
+   RENDER: SHELL
+   ============================================================ */
+function svgRing(pct){
+  const r=54, c=2*Math.PI*r, off=c-(c*pct/100);
+  return `<svg width="132" height="132" viewBox="0 0 132 132">
+    <circle cx="66" cy="66" r="${r}" stroke="var(--cream-deep)" stroke-width="10" fill="none"/>
+    <circle cx="66" cy="66" r="${r}" stroke="url(#g1)" stroke-width="10" fill="none" stroke-linecap="round"
+      stroke-dasharray="${c}" stroke-dashoffset="${off}" style="transition:stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1)"/>
+    <defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="var(--gold-light)"/><stop offset="100%" stop-color="var(--gold-deep)"/>
+    </linearGradient></defs>
+  </svg>`;
+}
+
+function navItems(){
+  return [
+    ['dashboard','dashboard','nav_dashboard'],
+    ['bride','bride','nav_bride'],
+    ['groom','groom','nav_groom'],
+    ['apartment','apartment','nav_apartment'],
+    ['wedding','venue','nav_wedding'],
+    ['honeymoon','honeymoon','nav_honeymoon'],
+    ['sep'],
+    ['budget','budget','nav_budget'],
+    ['guests','guests','nav_guests'],
+    ['vendors','vendors','nav_vendors'],
+    ['timeline','timeline','nav_timeline'],
+    ['sep'],
+    ['settings','settings','nav_settings'],
+  ];
+}
+
+function renderShell(){
+  const app = document.getElementById('app');
+  const nav = navItems().map(n=>{
+    if(n[0]==='sep') return `<div class="nav-sep"></div>`;
+    const [key,icon,label]=n;
+    return `<button class="nav-item ${state.view===key?'active':''}" data-nav="${key}">${ICON[icon]}<span>${t(label)}</span></button>`;
+  }).join('');
+
+  app.innerHTML = `
+  <div class="shell">
+    <div class="sidebar-scrim ${state.sidebarOpen?'show':''}" data-close-sidebar></div>
+    <aside class="sidebar ${state.sidebarOpen?'open':''}">
+      <div class="brand">
+        <div class="brand-mark">💍</div>
+        <div class="brand-text"><b class="disp">${t('appName')}</b><span>${t('appTag')}</span></div>
+      </div>
+      <nav class="nav">${nav}</nav>
+      <div class="sidebar-foot">
+        <div class="user-pill">
+          <div class="av">${state.currentUser==='ahmed'?'A':'F'}</div>
+          <select data-user-select>
+            <option value="ahmed" ${state.currentUser==='ahmed'?'selected':''}>Ahmed</option>
+            <option value="faten" ${state.currentUser==='faten'?'selected':''}>Faten</option>
+          </select>
+          <button type="button" data-logout title="${state.lang==='ar'?'تسجيل الخروج':'Log out'}" style="border:none;background:none;color:var(--ink-soft);font-size:16px;padding:4px;">⎋</button>
+        </div>
+      </div>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button class="icon-btn hamburger" data-toggle-sidebar>${ICON.menu}</button>
+          <div class="topbar-title disp">${t(navItems().find(n=>n[0]===state.view)?.[2] || 'nav_dashboard')}
+            <small>${new Date(state.weddingDate+'T00:00:00').toLocaleDateString(state.lang==='ar'?'ar-EG':'en-US',{year:'numeric',month:'long',day:'numeric'})}</small>
+          </div>
+        </div>
+        <div class="topbar-actions" style="position:relative;">
+          <button class="icon-btn" data-toggle-lang title="${t('language')}">${ICON.globe}</button>
+          <div style="position:relative;">
+            <button class="icon-btn" data-toggle-theme-menu>${state.theme==='midnight'?ICON.moon:ICON.sun}</button>
+            ${state.themeMenuOpen? renderThemeMenu() : ''}
+          </div>
+          <div style="position:relative;">
+            <button class="icon-btn" data-toggle-notif>${ICON.bell}${computeAlerts().length? '<span class="badge-dot"></span>':''}</button>
+            ${state.notifOpen? renderNotifPanel() : ''}
+          </div>
+        </div>
+      </header>
+      <main class="content"><div class="view" id="viewRoot"></div>
+        <div class="footer-note">${t('appName')} · ${t('appTag')}</div>
+      </main>
+    </div>
+  </div>
+  <button class="fab" data-fab>${ICON.plus}</button>
+  ${state.modal? renderModal(): ''}
+  `;
+  renderView();
+  bindGlobalEvents();
+}
+
+function renderThemeMenu(){
+  return `<div class="theme-menu" data-stop>
+    <button data-set-theme="rose"><span class="swatch" style="background:linear-gradient(135deg,#EAD9AE,#B8768A)"></span>${t('themeRose')}</button>
+    <button data-set-theme="midnight"><span class="swatch" style="background:linear-gradient(135deg,#1B1714,#D8B76B)"></span>${t('themeMidnight')}</button>
+  </div>`;
+}
+function renderNotifPanel(){
+  const alerts = computeAlerts();
+  const body = alerts.length? alerts.map(a=>`
+    <div class="alert-item">
+      <span class="alert-dot" style="background:var(--${a.type==='danger'?'danger':'warn'})"></span>
+      <div class="alert-text"><b>${a.label}</b><span>${a.text}</span></div>
+    </div>`).join('') : `<div class="empty-note">${t('noAlerts')}</div>`;
+  return `<div class="notif-panel" data-stop>${body}</div>`;
+}
+
+/* ============================================================
+   VIEWS
+   ============================================================ */
+function renderView(){
+  const root = document.getElementById('viewRoot');
+  const fns = {
+    dashboard:renderDashboard, budget:renderBudget, guests:renderGuests,
+    vendors:renderVendors, timeline:renderTimeline, settings:renderSettings,
+  };
+  if(CATS.includes(state.view)){ root.innerHTML = renderChecklistView(state.view); }
+  else { root.innerHTML = (fns[state.view]||renderDashboard)(); }
+  bindViewEvents();
+}
+
+function renderDashboard(){
+  const bt = budgetTotals();
+  const cons = state.budgetTotal? Math.round(bt.paid/state.budgetTotal*100):0;
+  const op = overallProgress();
+  const alerts = computeAlerts();
+  const dl = daysLeft();
+
+  const progressRows = CATS.map(cat=>`
+    <div class="progress-row">
+      <div class="plabel">${ICON[CAT_ICON[cat]]}<span>${t('nav_'+cat)}</span></div>
+      <div class="pbar"><i style="width:${catProgress(cat)}%"></i></div>
+      <div class="pval">${catProgress(cat)}%</div>
+    </div>`).join('');
+
+  const alertsHtml = alerts.length? alerts.slice(0,6).map(a=>`
+    <div class="alert-item">
+      <span class="alert-dot" style="background:var(--${a.type==='danger'?'danger':'warn'})"></span>
+      <div class="alert-text"><b>${a.label}</b><span>${a.text}</span></div>
+    </div>`).join('') : `<div class="empty-note">${t('noAlerts')}</div>`;
+
+  return `
+  <div class="hero">
+    <div class="geo-pattern"></div>
+    <div style="position:relative;z-index:1;">
+      <div class="hero-eyebrow">${t('countdown_eyebrow')}</div>
+      <div class="hero-count disp">${dl}<span>${t('days')}</span></div>
+      <div class="hero-date">${new Date(state.weddingDate+'T00:00:00').toLocaleDateString(state.lang==='ar'?'ar-EG':'en-US',{year:'numeric',month:'long',day:'numeric'})} · ${Math.round(dl/7)} ${t('weeks')}</div>
+    </div>
+    <div class="hero-ring-wrap" style="position:relative;z-index:1;">
+      ${svgRing(op)}
+      <div class="hero-ring-label"><b class="disp">${op}%</b><span>${t('overallProgress')}</span></div>
+    </div>
+  </div>
+
+  <div class="grid grid-3">
+    <div class="card stat-card">
+      <div class="stat-top"><span class="stat-label">${t('totalBudget')}</span>
+        <div class="stat-icon" style="background:var(--rose-soft);color:var(--rose-deep);">${ICON.budget}</div></div>
+      <div class="stat-value">${fmtMoney(state.budgetTotal)}</div>
+      <div class="stat-sub">${t('consumption')}: ${cons}%</div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-top"><span class="stat-label">${t('totalPaid')}</span>
+        <div class="stat-icon" style="background:var(--success-bg);color:var(--success);">${ICON.check}</div></div>
+      <div class="stat-value">${fmtMoney(bt.paid)}</div>
+      <div class="stat-sub">${t('actual')}: ${fmtMoney(bt.actual)}</div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-top"><span class="stat-label">${t('totalRemaining')}</span>
+        <div class="stat-icon" style="background:var(--warn-bg);color:var(--warn);">${ICON.alert}</div></div>
+      <div class="stat-value">${fmtMoney(bt.remaining)}</div>
+      <div class="stat-sub">${t('planned')}: ${fmtMoney(bt.planned)}</div>
+    </div>
+  </div>
+
+  <div class="grid grid-2" style="margin-top:16px; align-items:start;">
+    <div class="card pad">
+      <div class="section-title" style="margin-top:0;"><h2>${t('categoryProgress')}</h2></div>
+      ${progressRows}
+    </div>
+    <div class="card pad">
+      <div class="section-title" style="margin-top:0;"><h2>${t('alertsTitle')}</h2></div>
+      ${alertsHtml}
+    </div>
+  </div>
+  `;
+}
+
+function renderChecklistView(cat){
+  const secs = state.checklist[cat]||[];
+  const sections = secs.map((sec,si)=>{
+    const items = sec.items.map(it=>{
+      const label = state.lang==='ar'? it.ar: it.en;
+      return `
+      <div class="checklist-item">
+        <button class="chk ${it.done?'done':''}" data-toggle-item="${cat}|${it.id}">${ICON.check}</button>
+        <span class="ci-text ${it.done?'done-text':''}">${label}</span>
+        <div class="ci-controls">
+          <select class="mini-select" data-set-priority="${cat}|${it.id}">
+            <option value="high" ${it.priority==='high'?'selected':''}>🔴 ${t('high')}</option>
+            <option value="medium" ${it.priority==='medium'?'selected':''}>🟠 ${t('medium')}</option>
+            <option value="low" ${it.priority==='low'?'selected':''}>🟢 ${t('low')}</option>
+          </select>
+          <select class="mini-select" data-set-assigned="${cat}|${it.id}">
+            <option value="both" ${it.assigned==='both'?'selected':''}>${t('both')}</option>
+            <option value="bride" ${it.assigned==='bride'?'selected':''}>${t('bride')}</option>
+            <option value="groom" ${it.assigned==='groom'?'selected':''}>${t('groom')}</option>
+          </select>
+          <button class="btn-ghost icon-btn" style="width:32px;height:32px;" data-del-item="${cat}|${it.id}">${ICON.trash}</button>
+        </div>
+      </div>`;
+    }).join('');
+    const secDone = sec.items.filter(i=>i.done).length;
+    return `
+    <div class="card pad" style="margin-bottom:16px;">
+      <div class="section-title" style="margin-top:0;">
+        <h2>${state.lang==='ar'?sec.name_ar:sec.name_en}</h2>
+        <span class="hint">${secDone}/${sec.items.length}</span>
+      </div>
+      ${items}
+      <form data-add-item="${cat}|${si}" style="margin-top:12px;">
+        <input class="field-inline" placeholder="${t('addItemPh')}" style="width:100%;border:1.5px dashed var(--line);border-radius:11px;padding:10px 12px;font-size:13px;background:transparent;color:var(--ink);">
+      </form>
+    </div>`;
+  }).join('');
+
+  return `
+  <div class="card pad" style="margin-bottom:18px; display:flex; align-items:center; gap:18px; flex-wrap:wrap;">
+    <div style="flex-shrink:0;">${svgRing(catProgress(cat))}</div>
+    <div>
+      <div class="hero-eyebrow" style="margin-bottom:4px;">${t('overview')} ${t('nav_'+cat)}</div>
+      <div class="stat-value disp" style="font-size:22px;">${catProgress(cat)}% ${t('of')} 100%</div>
+    </div>
+  </div>
+  ${sections}
+  `;
+}
+
+function renderBudget(){
+  const bt = budgetTotals();
+  const statuses = ['planned','quoted','deposit','partial','full','cancelled'];
+  const statusKey = {planned:'st_planned',quoted:'st_quoted',deposit:'st_deposit',partial:'st_partial',full:'st_full',cancelled:'st_cancelled'};
+  const statusColor = {planned:'neutral',quoted:'rose',deposit:'warn',partial:'warn',full:'success',cancelled:'danger'};
+
+  const rows = state.budgetItems.map(it=>`
+    <tr>
+      <td><span class="badge b-rose">${t('nav_'+it.section)}</span></td>
+      <td style="font-weight:700;">${it.item}</td>
+      <td>${t(it.assigned)}</td>
+      <td>${fmtMoney(it.planned)}</td>
+      <td>${fmtMoney(it.actual)}</td>
+      <td>${fmtMoney(it.paid)}</td>
+      <td style="font-weight:700;color:${(it.actual-it.paid)>0?'var(--danger)':'var(--success)'}">${fmtMoney(it.actual-it.paid)}</td>
+      <td>${it.dueDate||'—'}</td>
+      <td><span class="badge b-${statusColor[it.status]}">${t(statusKey[it.status])}</span></td>
+      <td class="row-actions">
+        <button class="btn-ghost icon-btn" style="width:30px;height:30px;" data-edit-budget="${it.id}">${ICON.edit}</button>
+        <button class="btn-ghost icon-btn" style="width:30px;height:30px;" data-del-budget="${it.id}">${ICON.trash}</button>
+      </td>
+    </tr>`).join('');
+
+  // smart split suggestion
+  const split = [['apartment',.40],['wedding',.30],['bride',.12],['groom',.08],['honeymoon',.07],['emergency',.03]];
+  const splitHtml = split.map(([k,pct])=>`
+    <div class="progress-row">
+      <div class="plabel"><span>${k==='emergency'? (state.lang==='ar'?'الطوارئ':'Emergency') : t('nav_'+k)}</span></div>
+      <div class="pbar"><i style="width:${pct*100}%; background:linear-gradient(90deg,var(--rose-soft),var(--rose-deep));"></i></div>
+      <div class="pval">${fmtMoney(state.budgetTotal*pct)}</div>
+    </div>`).join('');
+
+  return `
+  <div class="grid grid-3">
+    <div class="card stat-card"><span class="stat-label">${t('planned')}</span><div class="stat-value">${fmtMoney(bt.planned)}</div></div>
+    <div class="card stat-card"><span class="stat-label">${t('actual')}</span><div class="stat-value">${fmtMoney(bt.actual)}</div></div>
+    <div class="card stat-card"><span class="stat-label">${t('paid')}</span><div class="stat-value">${fmtMoney(bt.paid)}</div></div>
+  </div>
+
+  <div class="section-title"><h2>${t('quickChart')}</h2></div>
+  ${renderBudgetChart()}
+
+  <div class="section-title"><h2>${t('smartBudget')}</h2><span class="hint">${fmtMoney(state.budgetTotal)}</span></div>
+  <div class="card pad">${splitHtml}</div>
+
+  <div class="section-title">
+    <h2>${t('nav_budget')}</h2>
+    <button class="btn btn-primary btn-sm" data-open-modal="budget">${ICON.plus}${t('addExpense')}</button>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>${t('section')}</th><th>${t('item')}</th><th>${t('assigned')}</th><th>${t('planned')}</th><th>${t('actual')}</th><th>${t('paid')}</th><th>${t('remaining')}</th><th>${t('dueDate')}</th><th>${t('status')}</th><th>${t('actions')}</th></tr></thead>
+        <tbody>${rows || `<tr><td colspan="10"><div class="empty-note">${t('noItemsYet')}</div></td></tr>`}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function renderBudgetChart(){
+  const cats = ['bride','groom','apartment','wedding','honeymoon'];
+  const sums = cats.map(c=>{
+    const items = state.budgetItems.filter(i=>i.section===c);
+    return {
+      planned: items.reduce((s,i)=>s+(+i.planned||0),0),
+      actual: items.reduce((s,i)=>s+(+i.actual||0),0),
+    };
+  });
+  const max = Math.max(1, ...sums.map(s=>Math.max(s.planned,s.actual)));
+  const cols = cats.map((c,i)=>`
+    <div class="chart-col">
+      <div class="bars">
+        <div class="bar" style="height:${sums[i].planned/max*100}%; background:var(--gold-light);"></div>
+        <div class="bar" style="height:${sums[i].actual/max*100}%; background:var(--rose-deep);"></div>
+      </div>
+      <div class="glabel">${t('nav_'+c)}</div>
+    </div>`).join('');
+  return `<div class="card pad">
+    <div class="chart-bars">${cols}</div>
+    <div class="legend"><span><i style="background:var(--gold-light)"></i>${t('chartBudget')}</span><span><i style="background:var(--rose-deep)"></i>${t('chartActual')}</span></div>
+  </div>`;
+}
+
+function renderGuests(){
+  const total = state.guests.reduce((s,g)=>s+(+g.count||1),0);
+  const confirmed = state.guests.filter(g=>g.rsvp==='confirmed').reduce((s,g)=>s+(+g.count||1),0);
+  const maybe = state.guests.filter(g=>g.rsvp==='maybe').reduce((s,g)=>s+(+g.count||1),0);
+  const declined = state.guests.filter(g=>g.rsvp==='declined').reduce((s,g)=>s+(+g.count||1),0);
+  const rsvpKey={invited:'invited',confirmed:'confirmed',maybe:'maybe',declined:'declined'};
+  const rsvpColor={invited:'neutral',confirmed:'success',maybe:'warn',declined:'danger'};
+
+  const rows = state.guests.map(g=>`
+    <tr>
+      <td style="font-weight:700;">${g.name}</td>
+      <td>${g.family||'—'}</td>
+      <td>${g.count}</td>
+      <td>${g.phone||'—'}</td>
+      <td>
+        <select class="mini-select" data-set-rsvp="${g.id}">
+          ${Object.keys(rsvpKey).map(k=>`<option value="${k}" ${g.rsvp===k?'selected':''}>${t(rsvpKey[k])}</option>`).join('')}
+        </select>
+      </td>
+      <td class="row-actions"><button class="btn-ghost icon-btn" style="width:30px;height:30px;" data-del-guest="${g.id}">${ICON.trash}</button></td>
+    </tr>`).join('');
+
+  return `
+  <div class="grid grid-3">
+    <div class="card stat-card"><span class="stat-label">${t('totalGuests')}</span><div class="stat-value">${total}</div></div>
+    <div class="card stat-card"><span class="stat-label">${t('confirmed')}</span><div class="stat-value" style="color:var(--success)">${confirmed}</div></div>
+    <div class="card stat-card"><span class="stat-label">${t('maybe')} / ${t('declined')}</span><div class="stat-value" style="color:var(--warn)">${maybe} / ${declined}</div></div>
+  </div>
+  <div class="section-title">
+    <h2>${t('nav_guests')}</h2>
+    <button class="btn btn-primary btn-sm" data-open-modal="guest">${ICON.plus}${t('addGuest')}</button>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>${t('name')}</th><th>${t('family')}</th><th>${t('count')}</th><th>${t('phone')}</th><th>${t('rsvp')}</th><th>${t('actions')}</th></tr></thead>
+        <tbody>${rows || `<tr><td colspan="6"><div class="empty-note">${t('noGuests')}</div></td></tr>`}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function renderVendors(){
+  const cards = state.vendors.map(v=>{
+    const remaining = (+v.total||0) - (+v.deposit||0);
+    const stars = Array.from({length:5}).map((_,i)=>`<span style="color:${i<(v.rating||0)?'var(--gold-deep)':'var(--ink-faint)'}">${i<(v.rating||0)?ICON.star:ICON.starOutline}</span>`).join('');
+    return `
+    <div class="card vendor-card" data-edit-vendor="${v.id}">
+      <div class="vendor-top">
+        <div class="vendor-av">${(v.name||'?').slice(0,1)}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:800;font-size:14.5px;">${v.name}</div>
+          <div style="font-size:12px;color:var(--ink-soft);">${v.category||''}</div>
+        </div>
+        <button class="btn-ghost icon-btn" style="width:30px;height:30px;" data-del-vendor="${v.id}" onclick="event.stopPropagation()">${ICON.trash}</button>
+      </div>
+      <div class="stars">${stars}</div>
+      <div style="font-size:12.5px;color:var(--ink-soft);display:flex;flex-direction:column;gap:3px;">
+        <span>${v.phone||'—'}</span>
+        <span>${t('total')}: ${fmtMoney(v.total)} · ${t('remaining')}: ${fmtMoney(remaining)}</span>
+      </div>
+      <span class="badge ${v.contract?'b-success':'b-warn'}" style="align-self:flex-start;">${v.contract? t('contractYes'): t('contractNo')}</span>
+    </div>`;
+  }).join('');
+
+  return `
+  <div class="section-title" style="margin-top:0;">
+    <h2>${t('nav_vendors')}</h2>
+    <button class="btn btn-primary btn-sm" data-open-modal="vendor">${ICON.plus}${t('addVendor')}</button>
+  </div>
+  <div class="vendor-grid">${cards || `<div class="card pad"><div class="empty-note">${t('noVendors')}</div></div>`}</div>`;
+}
+
+function renderTimeline(){
+  const tabs = TIMELINE_DEFS.map(([key])=>key);
+  if(!state.timelineTab) state.timelineTab = tabs[0];
+  const tabsHtml = tabs.map(k=>`<button class="tab ${state.timelineTab===k?'active':''}" data-timeline-tab="${k}">${t(k)}</button>`).join('');
+  const items = (state.timeline[state.timelineTab]||[]).map(it=>{
+    const label = state.lang==='ar'? it.ar: it.en;
+    return `<div class="checklist-item">
+      <button class="chk ${it.done?'done':''}" data-toggle-timeline="${state.timelineTab}|${it.id}">${ICON.check}</button>
+      <span class="ci-text ${it.done?'done-text':''}">${label}</span>
+    </div>`;
+  }).join('');
+  return `
+  <div class="tabs">${tabsHtml}</div>
+  <div class="card pad">${items}</div>`;
+}
+
+function renderSettings(){
+  return `
+  <div class="grid grid-2">
+    <div class="card pad">
+      <div class="section-title" style="margin-top:0;"><h2>${t('language')}</h2></div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn ${state.lang==='ar'?'btn-primary':'btn-outline'}" data-set-lang="ar">${ICON.globe} العربية</button>
+        <button class="btn ${state.lang==='en'?'btn-primary':'btn-outline'}" data-set-lang="en">${ICON.globe} English</button>
+      </div>
+    </div>
+    <div class="card pad">
+      <div class="section-title" style="margin-top:0;"><h2>${t('theme')}</h2></div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn ${state.theme==='rose'?'btn-primary':'btn-outline'}" data-set-theme="rose">${ICON.sun} ${t('themeRose')}</button>
+        <button class="btn ${state.theme==='midnight'?'btn-primary':'btn-outline'}" data-set-theme="midnight">${ICON.moon} ${t('themeMidnight')}</button>
+      </div>
+    </div>
+    <div class="card pad">
+      <div class="section-title" style="margin-top:0;"><h2>${t('weddingDate')}</h2></div>
+      <div class="field"><input type="date" value="${state.weddingDate}" data-set-date></div>
+    </div>
+    <div class="card pad">
+      <div class="section-title" style="margin-top:0;"><h2>${t('budgetTotal')}</h2></div>
+      <div class="field"><input type="number" value="${state.budgetTotal}" data-set-budget-total></div>
+    </div>
+  </div>
+  <div class="section-title"><h2>${t('export')}</h2></div>
+  <div class="card pad" style="display:flex;gap:10px;flex-wrap:wrap;">
+    <button class="btn btn-outline" data-coming-soon>PDF</button>
+    <button class="btn btn-outline" data-coming-soon>Excel</button>
+    <button class="btn btn-outline" data-coming-soon>Admin Panel</button>
+  </div>`;
+}
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+function renderModal(){
+  const m = state.modal;
+  if(!m) return '';
+  if(m.type==='budget') return budgetModal(m.data);
+  if(m.type==='guest') return guestModal(m.data);
+  if(m.type==='vendor') return vendorModal(m.data);
+  return '';
+}
+function modalWrap(title, body, footButtons){
+  return `<div class="modal-overlay" data-close-modal>
+    <div class="modal" data-stop>
+      <div class="modal-head"><h3>${title}</h3><button class="icon-btn" data-close-modal>${ICON.close}</button></div>
+      <div class="modal-body">${body}</div>
+      <div class="modal-foot">${footButtons}</div>
+    </div>
+  </div>`;
+}
+function budgetModal(d){
+  d = d || {section:'bride',item:'',assigned:'both',planned:0,actual:0,paid:0,dueDate:'',status:'planned',method:'cash',notes:''};
+  const statuses=[['planned','st_planned'],['quoted','st_quoted'],['deposit','st_deposit'],['partial','st_partial'],['full','st_full'],['cancelled','st_cancelled']];
+  const body = `
+    <div class="field-row">
+      <div class="field"><label>${t('section')}</label><select id="f_section">${CATS.map(c=>`<option value="${c}" ${d.section===c?'selected':''}>${t('nav_'+c)}</option>`).join('')}</select></div>
+      <div class="field"><label>${t('assigned')}</label><select id="f_assigned"><option value="both" ${d.assigned==='both'?'selected':''}>${t('both')}</option><option value="bride" ${d.assigned==='bride'?'selected':''}>${t('bride')}</option><option value="groom" ${d.assigned==='groom'?'selected':''}>${t('groom')}</option></select></div>
+    </div>
+    <div class="field"><label>${t('item')}</label><input id="f_item" value="${d.item||''}" placeholder="${t('ep_ar')}: Wedding Hall"></div>
+    <div class="field-row">
+      <div class="field"><label>${t('planned')}</label><input id="f_planned" type="number" value="${d.planned}"></div>
+      <div class="field"><label>${t('actual')}</label><input id="f_actual" type="number" value="${d.actual}"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>${t('paid')}</label><input id="f_paid" type="number" value="${d.paid}"></div>
+      <div class="field"><label>${t('dueDate')}</label><input id="f_due" type="date" value="${d.dueDate||''}"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>${t('status')}</label><select id="f_status">${statuses.map(s=>`<option value="${s[0]}" ${d.status===s[0]?'selected':''}>${t(s[1])}</option>`).join('')}</select></div>
+      <div class="field"><label>${t('vendor')}</label><input id="f_vendor" value="${d.vendorName||''}"></div>
+    </div>
+    <div class="field"><label>${t('notes')}</label><textarea id="f_notes" rows="2">${d.notes||''}</textarea></div>
+  `;
+  const foot = `<button class="btn btn-outline" data-close-modal>${t('cancel')}</button><button class="btn btn-primary" data-save-budget="${d.id||''}">${t('save')}</button>`;
+  return modalWrap(t('addExpense'), body, foot);
+}
+function guestModal(d){
+  d=d||{name:'',family:'',count:1,phone:''};
+  const body = `
+    <div class="field"><label>${t('name')}</label><input id="f_name" value="${d.name||''}"></div>
+    <div class="field-row">
+      <div class="field"><label>${t('family')}</label><input id="f_family" value="${d.family||''}"></div>
+      <div class="field"><label>${t('count')}</label><input id="f_count" type="number" value="${d.count||1}"></div>
+    </div>
+    <div class="field"><label>${t('phone')}</label><input id="f_phone" value="${d.phone||''}"></div>
+  `;
+  const foot = `<button class="btn btn-outline" data-close-modal>${t('cancel')}</button><button class="btn btn-primary" data-save-guest>${t('save')}</button>`;
+  return modalWrap(t('addGuest'), body, foot);
+}
+function vendorModal(d){
+  d = d || {name:'',category:'',phone:'',address:'',total:0,deposit:0,contract:false,rating:0,notes:''};
+  const body = `
+    <div class="field"><label>${t('name')}</label><input id="f_vname" value="${d.name||''}"></div>
+    <div class="field-row">
+      <div class="field"><label>${t('category')}</label><input id="f_vcat" value="${d.category||''}"></div>
+      <div class="field"><label>${t('phone')}</label><input id="f_vphone" value="${d.phone||''}"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>${t('total')}</label><input id="f_vtotal" type="number" value="${d.total||0}"></div>
+      <div class="field"><label>${t('deposit')}</label><input id="f_vdeposit" type="number" value="${d.deposit||0}"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>${t('rating')}</label><select id="f_vrating">${[0,1,2,3,4,5].map(n=>`<option value="${n}" ${d.rating==n?'selected':''}>${n}</option>`).join('')}</select></div>
+      <div class="field"><label>${t('contract')}</label><select id="f_vcontract"><option value="1" ${d.contract?'selected':''}>${t('contractYes')}</option><option value="0" ${!d.contract?'selected':''}>${t('contractNo')}</option></select></div>
+    </div>
+    <div class="field"><label>${t('notes')}</label><textarea id="f_vnotes" rows="2">${d.notes||''}</textarea></div>
+  `;
+  const foot = `<button class="btn btn-outline" data-close-modal>${t('cancel')}</button><button class="btn btn-primary" data-save-vendor="${d.id||''}">${t('save')}</button>`;
+  return modalWrap(t('addVendor'), body, foot);
+}
+
+/* ============================================================
+   EVENTS
+   ============================================================ */
+function uid(){ return 'id'+Date.now()+Math.floor(Math.random()*1000); }
+
+function openDraftModal(type){
+  if(type==='budget'){
+    const d={id:uid(),section:'bride',item:'',assigned:'both',planned:0,actual:0,paid:0,dueDate:'',status:'planned',method:'cash',vendorName:'',notes:'',_draft:true};
+    state.budgetItems.push(d); state.modal={type:'budget',data:d};
+  }else if(type==='guest'){
+    const d={id:uid(),name:'',family:'',count:1,phone:'',rsvp:'invited',_draft:true};
+    state.guests.push(d); state.modal={type:'guest',data:d};
+  }else if(type==='vendor'){
+    const d={id:uid(),name:'',category:'',phone:'',address:'',total:0,deposit:0,contract:false,rating:0,notes:'',_draft:true};
+    state.vendors.push(d); state.modal={type:'vendor',data:d};
+  }else state.modal={type,data:null};
+}
+function discardDraftModal(){
+  const m=state.modal; if(!m||!m.data||!m.data._draft) return;
+  const id=m.data.id;
+  if(m.type==='budget') state.budgetItems=state.budgetItems.filter(x=>x.id!==id);
+  if(m.type==='guest') state.guests=state.guests.filter(x=>x.id!==id);
+  if(m.type==='vendor') state.vendors=state.vendors.filter(x=>x.id!==id);
+}
+
+function bindGlobalEvents(){
+  document.querySelectorAll('[data-nav]').forEach(el=>el.addEventListener('click',()=>{
+    state.view = el.dataset.nav; state.sidebarOpen=false; render();
+  }));
+  document.querySelectorAll('[data-toggle-sidebar]').forEach(el=>el.addEventListener('click',()=>{ state.sidebarOpen=!state.sidebarOpen; render(); }));
+  document.querySelectorAll('[data-close-sidebar]').forEach(el=>el.addEventListener('click',()=>{ state.sidebarOpen=false; render(); }));
+  document.querySelectorAll('[data-toggle-lang]').forEach(el=>el.addEventListener('click',()=>{
+    state.lang = state.lang==='ar'?'en':'ar';
+    document.getElementById('htmlRoot').lang = state.lang;
+    document.getElementById('htmlRoot').dir = state.lang==='ar'?'rtl':'ltr';
+    render(); persist();
+  }));
+  document.querySelectorAll('[data-toggle-theme-menu]').forEach(el=>el.addEventListener('click',(e)=>{ e.stopPropagation(); state.themeMenuOpen=!state.themeMenuOpen; state.notifOpen=false; render(); }));
+  document.querySelectorAll('[data-toggle-notif]').forEach(el=>el.addEventListener('click',(e)=>{ e.stopPropagation(); state.notifOpen=!state.notifOpen; state.themeMenuOpen=false; render(); }));
+  document.querySelectorAll('[data-set-theme]').forEach(el=>el.addEventListener('click',()=>{
+    state.theme = el.dataset.setTheme; document.getElementById('htmlRoot').setAttribute('data-theme', state.theme);
+    state.themeMenuOpen=false; render(); persist();
+  }));
+  document.querySelectorAll('[data-user-select]').forEach(el=>el.addEventListener('change',()=>{ state.currentUser = el.value; persist(); }));
+  document.querySelectorAll('[data-logout]').forEach(el=>el.addEventListener('click',async()=>{
+    if(unsubscribeSnapshot){ unsubscribeSnapshot(); unsubscribeSnapshot=null; }
+    await auth.signOut();
+  }));
+  document.querySelectorAll('[data-stop]').forEach(el=>el.addEventListener('click',e=>e.stopPropagation()));
+  document.addEventListener('click', closeMenusOnce, {once:true});
+  document.querySelectorAll('[data-fab]').forEach(el=>el.addEventListener('click',()=>{
+    const map={budget:'budget',guests:'guest',vendors:'vendor'};
+    const type = map[state.view] || 'budget';
+    openDraftModal(type); render();
+  }));
+  document.querySelectorAll('[data-open-modal]').forEach(el=>el.addEventListener('click',()=>{
+    openDraftModal(el.dataset.openModal); render();
+  }));
+  document.querySelectorAll('[data-close-modal]').forEach(el=>el.addEventListener('click',()=>{ discardDraftModal(); state.modal=null; persist(); render(); }));
+  document.querySelectorAll('[data-coming-soon]').forEach(el=>el.addEventListener('click',()=>showToast(t('comingSoon'))));
+}
+function closeMenusOnce(){
+  if(state.themeMenuOpen || state.notifOpen){ state.themeMenuOpen=false; state.notifOpen=false; render(); }
+}
+
+function bindViewEvents(){
+  // checklist
+  document.querySelectorAll('[data-toggle-item]').forEach(el=>el.addEventListener('click',()=>{
+    const [cat,id]=el.dataset.toggleItem.split('|');
+    update(()=>{
+      const sec = state.checklist[cat].find(s=>s.items.some(i=>i.id===id));
+      const item = sec.items.find(i=>i.id===id);
+      item.done = !item.done;
+    });
+  }));
+  document.querySelectorAll('[data-set-priority]').forEach(el=>el.addEventListener('change',()=>{
+    const [cat,id]=el.dataset.setPriority.split('|');
+    update(()=>{
+      const sec = state.checklist[cat].find(s=>s.items.some(i=>i.id===id));
+      sec.items.find(i=>i.id===id).priority = el.value;
+    });
+  }));
+  document.querySelectorAll('[data-set-assigned]').forEach(el=>el.addEventListener('change',()=>{
+    const [cat,id]=el.dataset.setAssigned.split('|');
+    update(()=>{
+      const sec = state.checklist[cat].find(s=>s.items.some(i=>i.id===id));
+      sec.items.find(i=>i.id===id).assigned = el.value;
+    });
+  }));
+  document.querySelectorAll('[data-del-item]').forEach(el=>el.addEventListener('click',()=>{
+    const [cat,id]=el.dataset.delItem.split('|');
+    update(()=>{
+      const sec = state.checklist[cat].find(s=>s.items.some(i=>i.id===id));
+      sec.items = sec.items.filter(i=>i.id!==id);
+    }, {toast:t('deleted')});
+  }));
+  document.querySelectorAll('[data-add-item]').forEach(el=>el.addEventListener('submit',(e)=>{
+    e.preventDefault();
+    const [cat,si]=el.dataset.addItem.split('|');
+    const input = el.querySelector('input');
+    const val = input.value.trim();
+    if(!val) return;
+    update(()=>{
+      const sec = state.checklist[cat][+si];
+      sec.items.push({id:uid(), ar:val, en:val, done:false, priority:'medium', assigned:'both'});
+    });
+  }));
+
+  // timeline
+  document.querySelectorAll('[data-timeline-tab]').forEach(el=>el.addEventListener('click',()=>{
+    state.timelineTab = el.dataset.timelineTab; render();
+  }));
+  document.querySelectorAll('[data-toggle-timeline]').forEach(el=>el.addEventListener('click',()=>{
+    const [key,id]=el.dataset.toggleTimeline.split('|');
+    update(()=>{
+      const item = state.timeline[key].find(i=>i.id===id);
+      item.done = !item.done;
+    });
+  }));
+
+  // budget table
+  document.querySelectorAll('[data-edit-budget]').forEach(el=>el.addEventListener('click',()=>{
+    const item = state.budgetItems.find(i=>i.id===el.dataset.editBudget);
+    state.modal={type:'budget', data:item}; render();
+  }));
+  document.querySelectorAll('[data-del-budget]').forEach(el=>el.addEventListener('click',()=>{
+    update(()=>{ state.budgetItems = state.budgetItems.filter(i=>i.id!==el.dataset.delBudget); }, {toast:t('deleted')});
+  }));
+  const saveBudgetBtn = document.querySelector('[data-save-budget]');
+  if(saveBudgetBtn) saveBudgetBtn.addEventListener('click',()=>{
+    const id = saveBudgetBtn.dataset.saveBudget;
+    const obj = {
+      id: id || uid(),
+      section: val('f_section'), item: val('f_item'), assigned: val('f_assigned'),
+      planned:+val('f_planned')||0, actual:+val('f_actual')||0, paid:+val('f_paid')||0,
+      dueDate: val('f_due'), status: val('f_status'), vendorName: val('f_vendor'), notes: val('f_notes'),
+    };
+    update(()=>{
+      if(id){ const idx = state.budgetItems.findIndex(i=>i.id===id); state.budgetItems[idx]=obj; }
+      else state.budgetItems.push(obj);
+      obj._draft=false; state.modal=null;
+    }, {toast:t('saved')});
+  });
+
+  // guests
+  document.querySelectorAll('[data-set-rsvp]').forEach(el=>el.addEventListener('change',()=>{
+    update(()=>{ state.guests.find(g=>g.id===el.dataset.setRsvp).rsvp = el.value; });
+  }));
+  document.querySelectorAll('[data-del-guest]').forEach(el=>el.addEventListener('click',()=>{
+    update(()=>{ state.guests = state.guests.filter(g=>g.id!==el.dataset.delGuest); }, {toast:t('deleted')});
+  }));
+  const saveGuestBtn = document.querySelector('[data-save-guest]');
+  if(saveGuestBtn) saveGuestBtn.addEventListener('click',()=>{
+    const name = val('f_name'); if(!name) return;
+    update(()=>{
+      const d=state.modal && state.modal.data;
+      if(d){
+        Object.assign(d,{name,family:val('f_family'),count:+val('f_count')||1,phone:val('f_phone'),rsvp:d.rsvp||'invited',_draft:false});
+      }
+      state.modal=null;
+    }, {toast:t('saved')});
+  });
+
+  // vendors
+  document.querySelectorAll('[data-edit-vendor]').forEach(el=>el.addEventListener('click',()=>{
+    const v = state.vendors.find(v=>v.id===el.dataset.editVendor);
+    state.modal={type:'vendor', data:v}; render();
+  }));
+  document.querySelectorAll('[data-del-vendor]').forEach(el=>el.addEventListener('click',(e)=>{
+    e.stopPropagation();
+    update(()=>{ state.vendors = state.vendors.filter(v=>v.id!==el.dataset.delVendor); }, {toast:t('deleted')});
+  }));
+  const saveVendorBtn = document.querySelector('[data-save-vendor]');
+  if(saveVendorBtn) saveVendorBtn.addEventListener('click',()=>{
+    const id = saveVendorBtn.dataset.saveVendor;
+    const obj = {
+      id: id || uid(), name:val('f_vname'), category:val('f_vcat'), phone:val('f_vphone'),
+      total:+val('f_vtotal')||0, deposit:+val('f_vdeposit')||0, rating:+val('f_vrating')||0,
+      contract: val('f_vcontract')==='1', notes:val('f_vnotes'),
+    };
+    if(!obj.name) return;
+    update(()=>{
+      if(id){ const idx=state.vendors.findIndex(v=>v.id===id); state.vendors[idx]=obj; }
+      else state.vendors.push(obj);
+      obj._draft=false; state.modal=null;
+    }, {toast:t('saved')});
+  });
+
+  // settings
+  document.querySelectorAll('[data-set-lang]').forEach(el=>el.addEventListener('click',()=>{
+    state.lang = el.dataset.setLang;
+    document.getElementById('htmlRoot').lang = state.lang;
+    document.getElementById('htmlRoot').dir = state.lang==='ar'?'rtl':'ltr';
+    render(); persist();
+  }));
+  const dateInput = document.querySelector('[data-set-date]');
+  if(dateInput) dateInput.addEventListener('change',()=>{ update(()=>{ state.weddingDate = dateInput.value; }); });
+  const budgetInput = document.querySelector('[data-set-budget-total]');
+  if(budgetInput) budgetInput.addEventListener('change',()=>{ update(()=>{ state.budgetTotal = +budgetInput.value||0; }); });
+}
+function val(id){ const el=document.getElementById(id); return el? el.value.trim(): ''; }
+
+/* ============================================================
+   RENDER MASTER
+   ============================================================ */
+function render(){
+  document.getElementById('htmlRoot').setAttribute('data-theme', state.theme);
+  document.getElementById('htmlRoot').lang = state.lang;
+  document.getElementById('htmlRoot').dir = state.lang==='ar'?'rtl':'ltr';
+  renderShell();
+}
+
+/* ============================================================
+   AUTH / LOGIN FLOW
+   ============================================================ */
+const USER_NAME_MAP = {
+  // لو عايز تربط حسابات موجودة بالفعل بالأسماء، حط الإيميلات هنا:
+  // 'ahmed@example.com':'ahmed',
+  // 'faten@example.com':'faten'
+};
+let authMode = 'signin'; // 'signin' | 'signup'
+
+function showLogin(){
+  document.getElementById('app').style.display='block';
+  document.getElementById('loginScreen').style.display='none';
+}
+function showApp(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').style.display='block';
+}
+function setLoginError(msg){
+  const el=document.getElementById('loginError');
+  if(msg){ el.textContent=msg; el.classList.add('show'); }
+  else{ el.textContent=''; el.classList.remove('show'); }
+}
+function applyAuthModeUI(){
+  const signup = authMode==='signup';
+  document.getElementById('loginSubmitBtn').textContent = signup ? 'إنشاء الحساب' : 'دخول';
+  document.getElementById('switchText').textContent = signup ? 'عندك حساب بالفعل؟' : 'أول مرة تدخل؟';
+  document.getElementById('switchModeBtn').textContent = signup ? 'تسجيل الدخول' : 'إنشاء حساب';
+  document.getElementById('roleField').style.display = signup ? 'block' : 'none';
+  document.getElementById('forgotPasswordBtn').style.display = signup ? 'none' : 'block';
+}
+document.getElementById('switchModeBtn').addEventListener('click',()=>{
+  authMode = authMode==='signin' ? 'signup' : 'signin';
+  setLoginError('');
+  applyAuthModeUI();
+});
+
+document.getElementById('forgotPasswordBtn').addEventListener('click', async()=>{
+  setLoginError('');
+  const email = document.getElementById('loginEmail').value.trim();
+  if(!email){
+    setLoginError('اكتب البريد الإلكتروني الأول، وبعدها اضغط "نسيت كلمة المرور".');
+    return;
+  }
+  try{
+    await auth.sendPasswordResetEmail(email);
+    setLoginError('تم إرسال رابط إعادة تعيين كلمة المرور على البريد الإلكتروني.');
+  }catch(err){
+    const msgs = {
+      'auth/invalid-email':'الإيميل غير صحيح',
+      'auth/user-not-found':'مفيش حساب مسجل بالإيميل ده',
+      'auth/too-many-requests':'محاولات كثيرة. جرّب مرة أخرى بعد قليل',
+      'auth/network-request-failed':'مشكلة في الاتصال بالإنترنت'
+    };
+    setLoginError(msgs[err.code] || ('حصل خطأ: '+err.message));
+  }
+});
+
+document.getElementById('loginForm').addEventListener('submit', async(e)=>{
+  e.preventDefault();
+  setLoginError('');
+
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPassword').value;
+  const btn = document.getElementById('loginSubmitBtn');
+
+  btn.disabled = true;
+  try{
+    if(authMode==='signin'){
+      await auth.signInWithEmailAndPassword(email, pass);
+    }else{
+      const role = document.getElementById('loginRole').value;
+      const cred = await auth.createUserWithEmailAndPassword(email, pass);
+
+      // نخزن اسم الشخص داخل Firebase Auth بدل الاعتماد على اختيار محلي فقط.
+      await cred.user.updateProfile({displayName: role});
+      state.currentUser = role;
+    }
+  }catch(err){
+    const msgs = {
+      'auth/invalid-email':'الإيميل غير صحيح',
+      'auth/user-not-found':'الحساب غير موجود، جرّب "إنشاء حساب"',
+      'auth/wrong-password':'كلمة المرور غير صحيحة',
+      'auth/invalid-credential':'بيانات الدخول غير صحيحة',
+      'auth/email-already-in-use':'الإيميل ده مسجل بالفعل، جرّب "تسجيل الدخول"',
+      'auth/weak-password':'كلمة المرور لازم تكون 6 أحرف على الأقل',
+      'auth/too-many-requests':'محاولات كثيرة. جرّب مرة أخرى بعد قليل',
+      'auth/network-request-failed':'مشكلة في الاتصال بالإنترنت'
+    };
+    setLoginError(msgs[err.code] || ('حصل خطأ: '+err.message));
+  }finally{
+    btn.disabled = false;
+  }
+});
+
+auth.onAuthStateChanged(async(user)=>{
+  if(user){
+    const mapped = USER_NAME_MAP[user.email] || user.displayName;
+    if(mapped === 'ahmed' || mapped === 'faten') state.currentUser = mapped;
+  }
+  showApp();
+  installAutoSave();
+  await loadState();
+});
+
+applyAuthModeUI();
+</script>
+</body>
+</html>
