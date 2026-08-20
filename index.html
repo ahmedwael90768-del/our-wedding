@@ -304,7 +304,7 @@ tr:hover td{ background:var(--cream-deep); }
   .sidebar-scrim.show{ display:block; }
 }
 /* ============ LOGIN SCREEN ============ */
-#loginScreen{display:none !important;
+#loginScreen{
   min-height:100vh; display:flex; align-items:center; justify-content:center;
   background:var(--cream); padding:20px;
 }
@@ -390,7 +390,7 @@ const FIREBASE_CONFIG = {
 };
 // معرّف وثيقة البيانات المشتركة بينك وبين خطيبتك. صلاحيات Firestore يجب أن تسمح للمستخدمين المصرح لهم فقط.
 const COUPLE_DOC_ID = "our-wedding";
-const PUBLIC_GITHUB_PAGES_MODE = true;
+const PUBLIC_GITHUB_PAGES_MODE = false;
 
 firebase.initializeApp(FIREBASE_CONFIG);
 const auth = firebase.auth();
@@ -627,100 +627,180 @@ function fmtMoney(n){ n=Math.round(n||0); return n.toLocaleString(state.lang==='
    PERSISTENCE
    ============================================================ */
 const STORAGE_KEY='wedding-plan-data';
+
 function serializeState(){
   const {sidebarOpen,notifOpen,themeMenuOpen,modal,...toSave}=state;
   return toSave;
 }
-function docRef(){ return db.collection('couples').doc(COUPLE_DOC_ID); }
+
+function docRef(){
+  return db.collection('couples').doc(COUPLE_DOC_ID);
+}
 
 async function storageSet(valueObj){
-  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(valueObj)); }catch(e){ console.warn('local save failed',e); }
-  // Public GitHub Pages mode is intentionally local-only; do not let an old Firebase session overwrite the UI.
-  if(!PUBLIC_GITHUB_PAGES_MODE && auth.currentUser){
-    await docRef().set(valueObj, {merge:false});
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(valueObj));
+  }catch(e){
+    console.warn('local save failed',e);
   }
+
+  if(PUBLIC_GITHUB_PAGES_MODE || !auth.currentUser) return;
+
+  await docRef().set({
+    ...valueObj,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    updatedBy: auth.currentUser.uid
+  }, {merge:false});
 }
+
 async function storageGet(){
-  // Always prefer local data on the public site. Firebase must never block or replace the initial UI.
+  if(!PUBLIC_GITHUB_PAGES_MODE && auth.currentUser){
+    try{
+      const snap = await docRef().get();
+
+      if(snap.exists){
+        const data = snap.data() || {};
+        delete data.updatedAt;
+        delete data.updatedBy;
+
+        try{
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }catch(e){}
+
+        return data;
+      }
+    }catch(e){
+      console.warn('Firestore read failed, using local cache:',e);
+    }
+  }
+
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
     if(raw) return JSON.parse(raw);
-  }catch(e){ console.warn('local read failed',e); }
+  }catch(e){
+    console.warn('local read failed',e);
+  }
+
   return null;
 }
+
 function startRealtimeSync(){
-  if(unsubscribeSnapshot){ unsubscribeSnapshot(); unsubscribeSnapshot=null; }
-  // Disabled in public GitHub Pages mode.
+  if(unsubscribeSnapshot){
+    unsubscribeSnapshot();
+    unsubscribeSnapshot=null;
+  }
+
   if(PUBLIC_GITHUB_PAGES_MODE || !auth.currentUser) return;
+
   unsubscribeSnapshot = docRef().onSnapshot(snap=>{
     if(applyingRemoteUpdate || !snap.exists) return;
-    state = normalizeState(snap.data());
+
+    const data = snap.data() || {};
+    delete data.updatedAt;
+    delete data.updatedBy;
+
+    state = normalizeState(data);
+
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(serializeState()));
+    }catch(e){}
+
     render();
-  }, err=>console.warn('realtime sync error',err));
+  }, err=>{
+    console.warn('realtime sync error',err);
+    setSaveStatus('error');
+  });
 }
+
 async function loadState(){
   try{
-    const raw=await storageGet();
-    state=normalizeState(raw);
-    if(!raw) await persist(true);
+    const raw = await storageGet();
+    state = normalizeState(raw);
+
+    if(!raw && auth.currentUser){
+      await persist(true);
+    }
   }catch(e){
     console.error('load failed',e);
-    state=normalizeState(null);
+    state = normalizeState(null);
   }
+
   startRealtimeSync();
   render();
 }
+
 let saveStatusTimer=null;
+
 function setSaveStatus(type){
   let el=document.getElementById('autoSaveStatus');
+
   if(!el){
-    el=document.createElement('div'); el.id='autoSaveStatus';
+    el=document.createElement('div');
+    el.id='autoSaveStatus';
     el.style.cssText='position:fixed;bottom:18px;right:18px;z-index:99999;padding:9px 14px;border-radius:999px;background:rgba(20,20,20,.88);color:#fff;font:600 13px system-ui;box-shadow:0 6px 20px rgba(0,0,0,.15);transition:.2s;';
     document.body.appendChild(el);
   }
-  el.textContent=type==='saving'?'🟡 جاري الحفظ...':type==='saved'?'🟢 تم الحفظ أونلاين':'🔴 تعذر الحفظ';
+
+  el.textContent =
+    type==='saving' ? '🟡 جاري الحفظ...' :
+    type==='saved' ? '🟢 تم الحفظ أونلاين' :
+    '🔴 تعذر الحفظ';
+
   clearTimeout(saveStatusTimer);
-  if(type==='saved') saveStatusTimer=setTimeout(()=>el.remove(),1800);
+
+  if(type==='saved'){
+    saveStatusTimer=setTimeout(()=>el.remove(),1800);
+  }
 }
+
 async function persist(immediate=false){
-  clearTimeout(saveTimer); setSaveStatus('saving');
+  clearTimeout(saveTimer);
+  setSaveStatus('saving');
+
   const doSave=async()=>{
     applyingRemoteUpdate=true;
-    try{ await storageSet(serializeState()); setSaveStatus('saved'); }
-    catch(e){ console.error('save failed',e); setSaveStatus('error'); }
-    finally{ setTimeout(()=>{applyingRemoteUpdate=false;},400); }
+
+    try{
+      await storageSet(serializeState());
+      setSaveStatus('saved');
+    }catch(e){
+      console.error('save failed',e);
+      setSaveStatus('error');
+    }finally{
+      setTimeout(()=>{applyingRemoteUpdate=false;},400);
+    }
   };
-  if(immediate){ await doSave(); return; }
+
+  if(immediate){
+    await doSave();
+    return;
+  }
+
   return new Promise(resolve=>{
-    saveTimer=setTimeout(async()=>{ await doSave(); resolve(); },350);
+    saveTimer=setTimeout(async()=>{
+      await doSave();
+      resolve();
+    },350);
   });
 }
+
 function installAutoSave(){
   if(autoSaveInstalled) return;
   autoSaveInstalled=true;
+
   document.addEventListener('input', e=>{
     if(e.target && /^f_/.test(e.target.id||'')) persist();
   }, true);
+
   document.addEventListener('change', e=>{
     if(e.target && /^f_/.test(e.target.id||'')) persist();
   }, true);
+
   window.addEventListener('beforeunload',()=>{
-    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(serializeState())); }catch(e){}
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(serializeState()));
+    }catch(e){}
   });
-}
-
-function update(mut, opts={}){
-  mut(); render(); persist(); if(opts.toast) showToast(opts.toast);
-}
-
-let toastTimer=null;
-function showToast(msg){
-  clearTimeout(toastTimer);
-  const old = document.querySelector('.toast'); if(old) old.remove();
-  const el = document.createElement('div');
-  el.className='toast'; el.textContent=msg;
-  document.body.appendChild(el);
-  toastTimer=setTimeout(()=>el.remove(),2200);
 }
 
 /* ============================================================
@@ -751,7 +831,7 @@ function computeAlerts(){
   const alerts=[];
   const today = new Date(); today.setHours(0,0,0,0);
   state.budgetItems.forEach(it=>{
-    if(!it.dueDate || it.status==='fully_paid' || it.status==='cancelled') return;
+    if(!it.dueDate || it.status==='full' || it.status==='cancelled') return;
     const d = new Date(it.dueDate+'T00:00:00');
     const diff = Math.ceil((d-today)/86400000);
     if(diff<0) alerts.push({type:'danger', label:t('overdue'), text:(state.lang==='ar'?it.item_ar||it.item:it.item_en||it.item)});
@@ -817,10 +897,11 @@ function renderShell(){
       <div class="sidebar-foot">
         <div class="user-pill">
           <div class="av">${state.currentUser==='ahmed'?'A':'F'}</div>
-          <select data-user-select>
+          <select data-user-select title="${t('currentUser')}">
             <option value="ahmed" ${state.currentUser==='ahmed'?'selected':''}>Ahmed</option>
             <option value="faten" ${state.currentUser==='faten'?'selected':''}>Faten</option>
           </select>
+          <button class="btn-ghost" data-logout title="تسجيل الخروج" style="padding:6px 8px;font-size:11px;">خروج</button>
           
         </div>
       </div>
@@ -1508,33 +1589,77 @@ function render(){
    AUTH / LOGIN FLOW
    ============================================================ */
 const USER_NAME_MAP = {
-  // لو عايز تربط حسابات موجودة بالفعل بالأسماء، حط الإيميلات هنا:
+  // اربط الحسابات الموجودة بالفعل هنا لو احتجت:
   // 'ahmed@example.com':'ahmed',
   // 'faten@example.com':'faten'
 };
-let authMode = 'signin'; // 'signin' | 'signup'
+
+let authMode = 'signin';
+let loadingStateForUser = false;
 
 function showLogin(){
-  document.getElementById('app').style.display='block';
-  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('app').style.display='none';
 }
+
 function showApp(){
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('app').style.display='block';
 }
+
 function setLoginError(msg){
   const el=document.getElementById('loginError');
-  if(msg){ el.textContent=msg; el.classList.add('show'); }
-  else{ el.textContent=''; el.classList.remove('show'); }
+
+  if(msg){
+    el.textContent=msg;
+    el.classList.add('show');
+  }else{
+    el.textContent='';
+    el.classList.remove('show');
+  }
 }
+
 function applyAuthModeUI(){
   const signup = authMode==='signup';
-  document.getElementById('loginSubmitBtn').textContent = signup ? 'إنشاء الحساب' : 'دخول';
-  document.getElementById('switchText').textContent = signup ? 'عندك حساب بالفعل؟' : 'أول مرة تدخل؟';
-  document.getElementById('switchModeBtn').textContent = signup ? 'تسجيل الدخول' : 'إنشاء حساب';
-  document.getElementById('roleField').style.display = signup ? 'block' : 'none';
-  document.getElementById('forgotPasswordBtn').style.display = signup ? 'none' : 'block';
+
+  document.getElementById('loginSubmitBtn').textContent =
+    signup ? 'إنشاء الحساب' : 'دخول';
+
+  document.getElementById('switchText').textContent =
+    signup ? 'عندك حساب بالفعل؟' : 'أول مرة تدخل؟';
+
+  document.getElementById('switchModeBtn').textContent =
+    signup ? 'تسجيل الدخول' : 'إنشاء حساب';
+
+  document.getElementById('roleField').style.display =
+    signup ? 'block' : 'none';
+
+  document.getElementById('forgotPasswordBtn').style.display =
+    signup ? 'none' : 'block';
 }
+
+function roleFromUser(user){
+  if(!user) return 'ahmed';
+
+  const email=(user.email||'').toLowerCase().trim();
+
+  if(USER_NAME_MAP[email]){
+    return USER_NAME_MAP[email];
+  }
+
+  const name=(user.displayName||'').toLowerCase().trim();
+
+  if(name==='faten' || name==='fatma' || name==='فاطمة'){
+    return 'faten';
+  }
+
+  if(name==='ahmed' || name==='احمد' || name==='أحمد'){
+    return 'ahmed';
+  }
+
+  return state.currentUser || 'ahmed';
+}
+
 document.getElementById('switchModeBtn').addEventListener('click',()=>{
   authMode = authMode==='signin' ? 'signup' : 'signin';
   setLoginError('');
@@ -1543,11 +1668,14 @@ document.getElementById('switchModeBtn').addEventListener('click',()=>{
 
 document.getElementById('forgotPasswordBtn').addEventListener('click', async()=>{
   setLoginError('');
+
   const email = document.getElementById('loginEmail').value.trim();
+
   if(!email){
     setLoginError('اكتب البريد الإلكتروني الأول، وبعدها اضغط "نسيت كلمة المرور".');
     return;
   }
+
   try{
     await auth.sendPasswordResetEmail(email);
     setLoginError('تم إرسال رابط إعادة تعيين كلمة المرور على البريد الإلكتروني.');
@@ -1558,6 +1686,7 @@ document.getElementById('forgotPasswordBtn').addEventListener('click', async()=>
       'auth/too-many-requests':'محاولات كثيرة. جرّب مرة أخرى بعد قليل',
       'auth/network-request-failed':'مشكلة في الاتصال بالإنترنت'
     };
+
     setLoginError(msgs[err.code] || ('حصل خطأ: '+err.message));
   }
 });
@@ -1571,6 +1700,7 @@ document.getElementById('loginForm').addEventListener('submit', async(e)=>{
   const btn = document.getElementById('loginSubmitBtn');
 
   btn.disabled = true;
+
   try{
     if(authMode==='signin'){
       await auth.signInWithEmailAndPassword(email, pass);
@@ -1578,8 +1708,10 @@ document.getElementById('loginForm').addEventListener('submit', async(e)=>{
       const role = document.getElementById('loginRole').value;
       const cred = await auth.createUserWithEmailAndPassword(email, pass);
 
-      // نخزن اسم الشخص داخل Firebase Auth بدل الاعتماد على اختيار محلي فقط.
-      await cred.user.updateProfile({displayName: role});
+      await cred.user.updateProfile({
+        displayName: role
+      });
+
       state.currentUser = role;
     }
   }catch(err){
@@ -1593,20 +1725,50 @@ document.getElementById('loginForm').addEventListener('submit', async(e)=>{
       'auth/too-many-requests':'محاولات كثيرة. جرّب مرة أخرى بعد قليل',
       'auth/network-request-failed':'مشكلة في الاتصال بالإنترنت'
     };
+
     setLoginError(msgs[err.code] || ('حصل خطأ: '+err.message));
   }finally{
     btn.disabled = false;
   }
 });
 
-auth.onAuthStateChanged((user)=>{
-  // Authentication is intentionally ignored in public GitHub Pages mode.
+auth.onAuthStateChanged(async(user)=>{
+  if(loadingStateForUser) return;
+
+  if(user){
+    loadingStateForUser = true;
+
+    try{
+      state.currentUser = roleFromUser(user);
+      showApp();
+
+      await loadState();
+
+      state.currentUser = roleFromUser(user);
+      render();
+    }catch(err){
+      console.error('auth state load failed',err);
+      state = normalizeState(null);
+      showApp();
+      render();
+      setSaveStatus('error');
+    }finally{
+      loadingStateForUser = false;
+    }
+  }else{
+    if(unsubscribeSnapshot){
+      unsubscribeSnapshot();
+      unsubscribeSnapshot=null;
+    }
+
+    showLogin();
+    setLoginError('');
+  }
 });
 
-// GitHub Pages / no-login mode: always render locally first.
-showApp();
+applyAuthModeUI();
 installAutoSave();
-loadState();
+showLogin();
 </script>
 </body>
 </html>
