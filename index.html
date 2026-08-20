@@ -1378,6 +1378,23 @@ function vendorModal(d){
    ============================================================ */
 function uid(){ return 'id'+Date.now()+Math.floor(Math.random()*1000); }
 
+// Central update helper: apply the change, redraw the UI, then save it.
+// The previous Firebase version called update(...) in many click handlers
+// but did not actually define that function, so those edits stopped at
+// a JavaScript ReferenceError.
+function update(mutator, opts={}){
+  try{
+    if(typeof mutator==='function') mutator();
+    render();
+    if(opts.toast) showToast(opts.toast);
+    return persist();
+  }catch(err){
+    console.error('update failed', err);
+    setSaveStatus('error');
+    return Promise.reject(err);
+  }
+}
+
 function openDraftModal(type){
   if(type==='budget'){
     const d={id:uid(),section:'bride',item:'',assigned:'both',planned:0,actual:0,paid:0,dueDate:'',status:'planned',method:'cash',vendorName:'',notes:'',_draft:true};
