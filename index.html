@@ -390,6 +390,7 @@ const FIREBASE_CONFIG = {
 };
 // معرّف وثيقة البيانات المشتركة بينك وبين خطيبتك. صلاحيات Firestore يجب أن تسمح للمستخدمين المصرح لهم فقط.
 const COUPLE_DOC_ID = "our-wedding";
+const PUBLIC_GITHUB_PAGES_MODE = true;
 
 firebase.initializeApp(FIREBASE_CONFIG);
 const auth = firebase.auth();
@@ -588,6 +589,37 @@ function seedTimeline(){
   return out;
 }
 
+function normalizeState(raw){
+  const base={
+    lang:'ar', theme:'rose', view:'dashboard', currentUser:'ahmed',
+    weddingDate:'2026-12-23', budgetTotal:500000,
+    checklist:seedChecklist(), timeline:seedTimeline(),
+    budgetItems:[], guests:[], vendors:[],
+    sidebarOpen:false, notifOpen:false, themeMenuOpen:false, modal:null,
+  };
+  const src = (raw && typeof raw==='object') ? raw : {};
+  const out = Object.assign(base, src);
+  // Never let an old/incomplete saved object erase the built-in checklist/timeline.
+  const seededChecklist=base.checklist;
+  out.checklist={};
+  CATS.forEach(cat=>{
+    const saved=src.checklist && Array.isArray(src.checklist[cat]) ? src.checklist[cat] : null;
+    const valid = saved && saved.some(sec => sec && Array.isArray(sec.items) && sec.items.length);
+    out.checklist[cat] = valid ? saved : seededChecklist[cat];
+  });
+  const seededTimeline=base.timeline;
+  out.timeline={};
+  Object.keys(seededTimeline).forEach(key=>{
+    const saved=src.timeline && Array.isArray(src.timeline[key]) ? src.timeline[key] : null;
+    out.timeline[key] = saved && saved.length ? saved : seededTimeline[key];
+  });
+  out.budgetItems=Array.isArray(src.budgetItems)?src.budgetItems:[];
+  out.guests=Array.isArray(src.guests)?src.guests:[];
+  out.vendors=Array.isArray(src.vendors)?src.vendors:[];
+  out.view = (typeof src.view==='string' && (src.view==='dashboard' || CATS.includes(src.view) || ['budget','guests','vendors','timeline','settings'].includes(src.view))) ? src.view : 'dashboard';
+  return out;
+}
+
 function t(k){ return T[state.lang][k] || k; }
 function fmtMoney(n){ n=Math.round(n||0); return n.toLocaleString(state.lang==='ar'?'ar-EG':'en-US')+' '+t('currency'); }
 
@@ -602,43 +634,38 @@ function serializeState(){
 function docRef(){ return db.collection('couples').doc(COUPLE_DOC_ID); }
 
 async function storageSet(valueObj){
-  // local cache for instant reload / offline fallback
-  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(valueObj)); }catch(e){}
-  await docRef().set(valueObj, {merge:false});
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(valueObj)); }catch(e){ console.warn('local save failed',e); }
+  // Public GitHub Pages mode is intentionally local-only; do not let an old Firebase session overwrite the UI.
+  if(!PUBLIC_GITHUB_PAGES_MODE && auth.currentUser){
+    await docRef().set(valueObj, {merge:false});
+  }
 }
 async function storageGet(){
-  try{
-    const snap = await docRef().get();
-    if(snap.exists) return snap.data();
-  }catch(e){ console.warn('firestore read failed',e); }
+  // Always prefer local data on the public site. Firebase must never block or replace the initial UI.
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
     if(raw) return JSON.parse(raw);
-  }catch(e){}
+  }catch(e){ console.warn('local read failed',e); }
   return null;
 }
 function startRealtimeSync(){
-  if(unsubscribeSnapshot) unsubscribeSnapshot();
+  if(unsubscribeSnapshot){ unsubscribeSnapshot(); unsubscribeSnapshot=null; }
+  // Disabled in public GitHub Pages mode.
+  if(PUBLIC_GITHUB_PAGES_MODE || !auth.currentUser) return;
   unsubscribeSnapshot = docRef().onSnapshot(snap=>{
-    if(applyingRemoteUpdate) return;
-    if(!snap.exists) return;
-    const saved = snap.data();
-    state = Object.assign(state, saved, {sidebarOpen:state.sidebarOpen,notifOpen:false,themeMenuOpen:false,modal:state.modal});
+    if(applyingRemoteUpdate || !snap.exists) return;
+    state = normalizeState(snap.data());
     render();
   }, err=>console.warn('realtime sync error',err));
 }
 async function loadState(){
   try{
     const raw=await storageGet();
-    if(raw){
-      state=Object.assign(state,raw,{sidebarOpen:false,notifOpen:false,themeMenuOpen:false,modal:null});
-    }else{
-      state.checklist=seedChecklist(); state.timeline=seedTimeline();
-      await persist(true);
-    }
+    state=normalizeState(raw);
+    if(!raw) await persist(true);
   }catch(e){
     console.error('load failed',e);
-    state.checklist=seedChecklist(); state.timeline=seedTimeline();
+    state=normalizeState(null);
   }
   startRealtimeSync();
   render();
@@ -671,49 +698,17 @@ async function persist(immediate=false){
 function installAutoSave(){
   if(autoSaveInstalled) return;
   autoSaveInstalled=true;
-
-  const saveFromForm=()=>{
-    const m=state.modal;
-    if(!m || !m.data) return;
-    const d=m.data;
-
-    if(m.type==='budget'){
-      Object.assign(d,{
-        section:val('f_section'), assigned:val('f_assigned'), item:val('f_item'),
-        planned:+val('f_planned')||0, actual:+val('f_actual')||0, paid:+val('f_paid')||0,
-        dueDate:val('f_due'), status:val('f_status'), vendorName:val('f_vendor'),
-        notes:val('f_notes')
-      });
-    }else if(m.type==='guest'){
-      Object.assign(d,{
-        name:val('f_name'), family:val('f_family'),
-        count:+val('f_count')||1, phone:val('f_phone')
-      });
-    }else if(m.type==='vendor'){
-      Object.assign(d,{
-        name:val('f_vname'), category:val('f_vcat'), phone:val('f_vphone'),
-        total:+val('f_vtotal')||0, deposit:+val('f_vdeposit')||0,
-        rating:+val('f_vrating')||0, contract:val('f_vcontract')==='1',
-        notes:val('f_vnotes')
-      });
-    }
-    persist();
-  };
-
-  // One delegated listener only; no duplicate listeners after re-login.
-  document.addEventListener('input', (e)=>{
-    if(e.target && e.target.id && e.target.id.startsWith('f_')) saveFromForm();
+  document.addEventListener('input', e=>{
+    if(e.target && /^f_/.test(e.target.id||'')) persist();
   }, true);
-  document.addEventListener('change', (e)=>{
-    if(e.target && e.target.id && e.target.id.startsWith('f_')) saveFromForm();
+  document.addEventListener('change', e=>{
+    if(e.target && /^f_/.test(e.target.id||'')) persist();
   }, true);
-
   window.addEventListener('beforeunload',()=>{
-    try{
-      localStorage.setItem(STORAGE_KEY,JSON.stringify(serializeState()));
-    }catch(e){}
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(serializeState())); }catch(e){}
   });
 }
+
 function update(mut, opts={}){
   mut(); render(); persist(); if(opts.toast) showToast(opts.toast);
 }
@@ -826,7 +821,7 @@ function renderShell(){
             <option value="ahmed" ${state.currentUser==='ahmed'?'selected':''}>Ahmed</option>
             <option value="faten" ${state.currentUser==='faten'?'selected':''}>Faten</option>
           </select>
-          <button type="button" data-logout title="${state.lang==='ar'?'تسجيل الخروج':'Log out'}" style="border:none;background:none;color:var(--ink-soft);font-size:16px;padding:4px;">⎋</button>
+          
         </div>
       </div>
     </aside>
@@ -961,7 +956,7 @@ function renderDashboard(){
 }
 
 function renderChecklistView(cat){
-  const secs = state.checklist[cat]||[];
+  const secs = (state.checklist && Array.isArray(state.checklist[cat]) && state.checklist[cat].length) ? state.checklist[cat] : seedChecklist()[cat];
   const sections = secs.map((sec,si)=>{
     const items = sec.items.map(it=>{
       const label = state.lang==='ar'? it.ar: it.en;
@@ -1604,17 +1599,14 @@ document.getElementById('loginForm').addEventListener('submit', async(e)=>{
   }
 });
 
-auth.onAuthStateChanged(async(user)=>{
-  if(user){
-    const mapped = USER_NAME_MAP[user.email] || user.displayName;
-    if(mapped === 'ahmed' || mapped === 'faten') state.currentUser = mapped;
-  }
-  showApp();
-  installAutoSave();
-  await loadState();
+auth.onAuthStateChanged((user)=>{
+  // Authentication is intentionally ignored in public GitHub Pages mode.
 });
 
-applyAuthModeUI();
+// GitHub Pages / no-login mode: always render locally first.
+showApp();
+installAutoSave();
+loadState();
 </script>
 </body>
 </html>
